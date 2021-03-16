@@ -1,0 +1,60 @@
+<section class="handles-wrapper canvas" id="canvas_wrapper">
+  <canvas id="sharedImage"></canvas>
+  <div class="container main">
+    <img id="image" src="" alt="">
+    <video src="" alt="" id="userCanvasImg" playsinline autoplay/>
+  </div>    
+</section>
+
+<section class="handles-wrapper" id="image-wrapper">
+    <div class="image-list" id="image-list"></div>
+</section>
+
+<section class="handles-wrapper" id="chat-wrapper" style="display: none;">
+    <div class="chat">
+      <img m-click="hideChat" src="/img/ico/close.png" class="close">
+      <h3 m-click="hideChat">Chat</h3>
+      <div class="items">
+        <div id="initChatMessages"></div>
+        <div id="liveChatMessage"></div>
+      </div>
+      <div class="message">
+        <textarea  m-keyup="sendChatMessage" class="chatMessage" id="chatMessage" type="text"></textarea>
+      </div>
+      <button class="sendChatMessage" m-click="sendChatMessage">send</button>
+
+    </div>
+</section>
+
+<section id="left_tabs_id" class="left_tabs" style="display: none">
+  <div class="tab">
+    <span class="tablinks tab__text__orientation"  id="audio_tab">Audio</span>
+  </div>
+
+  <div class="tab__container">
+    <div id="audio_tab_id" style="display: none" class="tabcontent">
+      <h3>share your audio</h3>
+      <input  type="file" id="shareFileAudio" accept="audio/*" capture>
+      <audio src="" controls id="shareAudio"></audio>
+      <audio autoplay src="" id="sharedAudio"></audio>   
+    </div>
+  </div>
+</section>
+
+<section class="remoteVideos" id="remoteVideos"></section>
+
+<nav id="navigation-bar" class="navigation-bar">
+  <div id="conversation" class="container">
+    <a class="go-rooms" href="/">Go at rooms</a>
+    <button m-click="switchOnVideo" id="switchOnVideo" class="switchOnVideo">video</button>
+    <button m-click="switchOnAudio" id="switchOnAudio" class="switchOnAudio">audio</button>
+    <button style="display: none;" id="left_tabs" href="#">Show share bar<span class="sr-only">(current)</span></button>
+    <button style="display: none;"  class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+      <span id="navbar_сollapse" class="navbar-toggler-icon">Toggle navigation</span>
+    </button>
+    <button style="display: none;" title="change image size" id="changeImage">change</button>
+    <button m-click="hideChat">chat</button>
+    <label style="display: none;" for="shareImage" title="upload image" class="canvas_button">Browse</label>
+    <input style="display: none;" id="shareImage" type="file" accept="image/*" capture multiple="multiple" class="upload_input"> 
+  </div>
+</nav>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+    <title>Video Chat</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0,user-scalable=no">
+    <meta name="description" content="Video Chat.">
+    <meta name="author" content="Sergei Nosachyev">
+    <link href="/css/main.css" rel="stylesheet">
+    <link href="/css/tabs/left_tab.css" rel="stylesheet">
+    <link href="/css/user.css" rel="stylesheet">
+    <meta name="google-signin-client_id" content="130656375808-lf3qre8scvdu8poro6jlh1hj7tel4ef7.apps.googleusercontent.com">
+  </head>
+  <body>
+    <nav id="authenticator" class="menu">
+      <div class="container">
+        <div class="row"> 
+          <div class="g-signin2" data-onsuccess="onSignIn" data-theme="dark"></div>
+        </div> 
+        <div class="row"> 
+          <img id="userImg" class="paa" alt="">
+          <h3 id="userName" class="ig"></h3>
+        </div>
+        <div class="video__wrapper">
+          <video class="localVideo" playsinline autoplay muted></video>
+        </div>
+      </div>
+    </nav>
+    <div id="room" room="/video.html"></div>
+    <script src='/js/mixins/user.js'></script>
+    <script src='/socket.io/socket.io.js'></script>
+    <script src='/js/helpers/debounce.js'></script>
+    <script src='/js/core/index.js'></script>
+    <script src='/js/core/directive.js'></script>
+    <script src='/js/confing.js'></script>
+    <script src='/js/mixins/canvas.js'></script>
+    <script src='/js/components/remote_video.js'></script>
+    <script src='/js/video.js'></script>
+    <script src='/js/chat.js'></script>
+    <script src='/js/animation.js'></script>
+    <script src='/js/my_cropper.js'></script>
+
+    <script src='/js/core/events.js'></script>
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+  </body>
+</html>

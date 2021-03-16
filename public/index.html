@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    
+    <meta name="description" content="">
+    <meta name="author" content="Sergei Nosachyev">
+    <meta name="google-signin-client_id" content="130656375808-lf3qre8scvdu8poro6jlh1hj7tel4ef7.apps.googleusercontent.com">
+    <link rel="icon" href="/docs/4.1/assets/img/favicons/favicon.ico">
+    <title>Chats</title>
+
+    <link href="/css/rooms.css" rel="stylesheet">
+    <link href="/css/user.css" rel="stylesheet">
+  </head>
+
+  <body>
+    <nav class="navbar-default navbar-fixed-top menu">
+      <div class="container">
+        <div class="header">
+          <div class="g-signin2" data-onsuccess="onSignIn" data-theme="dark">
+          </div>
+          <img id="userImg" class="paa" alt="">
+          <h3 id="userName" class="ig"></h3>
+        </div>
+      </div>
+    </nav>
+    <section class="jumbotron">
+        <div class="container">
+            <div class="menu">
+              <div class="title">
+                <h1>TALKING</h1>
+              </div>
+
+              <div class="create-room__wrapper">
+                <h3>Create group</h3>
+              
+                <div class="create-room">
+                  <div class="form-group">
+                    <label for="exampleFormControlSelect1">Choose category</label>
+                    <select id="new_category" class="form-control">
+                      <option>language</option>
+                      <option>programmin</option>
+                      <option>scient</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="exampleFormControlSelect1">Choose item</label>
+                    <select id="new_subject" class="form-control">
+                      <option>english</option>
+                      <option>deutch</option>
+                      <option>nihong</option>
+                    </select>
+                  </div>
+                  <button m-click="createRoom" id="create-room" class="btn btn-primary">Create Room</button>
+                </div>
+
+              </div>
+
+              <div class="filter__wraper">
+                <h3>Filter groups</h3>
+                
+                <div class="filter">
+                  <div class="form-group">
+                    <label for="exampleFormControlSelect1">Choose category</label>
+                    <select m-change="filterCategory" class="form-control">
+                      <option>language</option>
+                      <option>programmin</option>
+                      <option>scient</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="exampleFormControlSelect1">Choose item</label>
+                    <select m-change="filterSubject"  class="form-control">
+                      <option>english</option>
+                      <option>deutch</option>
+                      <option>nihong</option>
+                    </select>
+                  </div>
+
+                  <button m-click="clear" class="btn btn-primary">Clear</button>
+                  
+                </div>
+              </div>
+            </div>
+            
+        </div>
+    </section>
+
+
+    <div class="container container-rooms">
+      <div id="rooms" class="rooms"></div>
+    </div>
+
+    <footer class="footer fixed-bottom">
+      <div class="link">
+        <span>science talk</span>
+      </div>
+      <div class="link">
+        <span>talking about science</span>
+      </div>
+      <div class="link">
+        <span>science</span>
+      </div>
+    </footer>
+
+    <script src='/js/mixins/user.js'></script>
+    <script src='/socket.io/socket.io.js'></script>
+    <script src='/js/core/directive.js'></script>
+    <script src='/js/rooms.js'></script>
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+  </body>
+</html>

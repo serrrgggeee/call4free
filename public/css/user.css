@@ -1,0 +1,17 @@
+#userImg {
+  width: 36px;
+  height: 36px;
+  margin-left: 5px;
+  float: left;
+}
+#userName {
+  margin: 0;
+  margin-left: 5px;
+
+  display: flex;
+  
+  align-items: center;
+
+  white-space: nowrap;
+  font-size: 16px;
+}

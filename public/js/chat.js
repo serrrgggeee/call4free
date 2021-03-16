@@ -1,0 +1,77 @@
+
+Object.assign(data, {
+  isChatInit: []
+});
+
+Object.assign(method, {
+
+  getDate: (today) => {
+    return `${today.getDate()}`.padStart(2, "0")+'.'+(`${today.getMonth() + 1}`.padStart(2, "0"))+'.'+today.getFullYear();
+  },
+  getDateTime: () => {
+    return new Date().toLocaleString();
+  },
+  sendChatMessage : (e) => {
+    const chatMessage = document.getElementById("chatMessage");
+    const today = new Date();
+    let date_time = method.getDateTime();
+    const date = method.getDate(today);
+    const day_time = date_time.split(',');
+    if(date == day_time[0]) {
+      date_time = day_time[1];
+    }
+    socket.emit('sendChat', {userInfo, message: chatMessage['value'], date_time});
+    chatMessage['value'] = "";
+  },
+
+  addChat: item => {
+    const res = `<div class="item">
+        <div class="user"><img src="${item.userInfo.img}" class="paa" alt="${item.userInfo.name}" 
+            title="${item.userInfo.name}">
+          <div class="date-time">${item.date_time}</div>
+        </div>
+        <div class="message">${item.message}</div>
+      </div>`
+    return res; 
+  },
+
+  hideChat: () => {
+    const chatWraper = document.getElementById("chat-wrapper");
+    chatWraper.style.display = chatWraper.style.display == "none" ? "flex": "none";
+    if(!data.isChatInit.includes(room)) {
+      socket.emit('openChat');
+    }
+
+  }
+
+});
+
+socket.on('responseChat', (payload) => {
+  const chat_node = document.createElement('div');
+  chat_node.innerHTML = method.addChat(payload);
+  const item = document.getElementById("initChatMessages");
+  item.insertBefore(chat_node.firstChild, item.firstChild);
+});
+
+socket.on('initChatMessages', (payload) => {
+  console.log(data.isChatInit);
+  if(!data.isChatInit.includes(room)) {
+    data.isChatInit.push(room);
+  }
+
+  const today = new Date();
+  const date = method.getDate(today);
+  const chat_node = document.createElement('div');
+  method.isUserLoad(1000).then(() => {
+    payload.reverse();
+    payload.forEach(item=> {
+      const day_time = item.date_time.split(',');
+      if(date == day_time[0]) {
+        item.date_time = day_time[1];
+      }
+      chat_node.innerHTML = method.addChat(item);
+      document.getElementById("initChatMessages").appendChild(chat_node.firstChild);
+    });
+  });
+});
+
