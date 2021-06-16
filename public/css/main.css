@@ -143,11 +143,14 @@ button:focus {
 }
 
 .handles-wrapper .chat .item {
-  /*width: calc(100% - 10px);
+  width: calc(100% - 10px);
   line-break: anywhere;
-  overflow: auto;
-  height: 380px;*/
+}
 
+.handles-wrapper .chat .items {
+  height: calc(100% - 200px);
+  overflow-y: scroll;
+  overflow-x: hidden;
 }
 
 .handles-wrapper .chat .items .user {
@@ -229,6 +232,9 @@ button:focus {
   position: absolute;
   bottom: 7%;
   left: 0%;
+  width: calc(100% - 10px);
+  display: flex;
+  overflow-x: auto;
 } 
 
 .user__item{

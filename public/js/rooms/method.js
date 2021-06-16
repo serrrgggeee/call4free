@@ -1,10 +1,3 @@
-const data = {
-  rooms: {},
-  filterd_rooms:{},
-  count: 0,
-  filters: {}
-}
-
 const method = {
   filterCategory(e){
     const value = e.target['value'];
@@ -30,7 +23,7 @@ const method = {
   createRoom(){
     let room = this.makeid(10);
     const category = document.getElementById("new_category")['value'];
-    const subject = document.getElementById("new_subject")['value'];
+    const subject = document.getElementById("languages")['value'];
     const date_time = this.getDateTime();
     socket.emit('create_room', room, {category, subject, date_time}, userInfo);
     socket.emit('get_rooms');
@@ -87,7 +80,7 @@ const method = {
       for (const filter in data.filters) {
         const value = data.filters[filter];
         for (const room in filtering_rooms) {
-            if(data.rooms[room][filter] != value) {
+            if(data.rooms[room][filter].toLowerCase() != value.toLowerCase()) {
               delete filtering_rooms[room];
             }
         }
@@ -130,23 +123,47 @@ const method = {
       result += characters.charAt(Math.floor(Math.random() * charactersLength));
     }
     return result;
+  },
+
+  getLanguages() {
+    let languagesData = fetch('https://video.chat.vokt.ru/comunicate/language/');
+
+
+    languagesData.then(function(res){
+      if(data.languages.length > 0) {
+        return data.languages;
+      }
+      const languages = JSON.parse(res.response);
+      for (const i in languages) {
+        const language = languages[i];
+        data.languages += 
+          `<option>` + language.name + `</option>`;
+      }
+      document.getElementById("languages").innerHTML = data.languages;
+      document.getElementById("languages_filter").innerHTML = data.languages;
+    }).catch(function(error){
+      console.log(error);
+    });
+  },
+
+  getCategories() {
+    let categoriesData = fetch('https://video.chat.vokt.ru/comunicate/subject/');
+
+
+    categoriesData.then(function(res){
+      if(data.categories.length > 0) {
+        return data.categories;
+      }
+      const categories = JSON.parse(res.response);
+      for (const i in categories) {
+        const category = categories[i];
+        data.categories += 
+          `<option>` + category.name + `</option>`;
+      }
+      document.getElementById("new_category").innerHTML = data.categories;
+      document.getElementById("category_filter").innerHTML = data.categories;
+    }).catch(function(error){
+      console.log(error);
+    });
   }
 }
-
-
-
-
-let socket = io.connect(window.location.origin);
-
-socket.on('set_rooms', function (value)  {
-  data.rooms = value;
-  method.filterRooms();
-  data.count = Object.keys(data.filterd_rooms).length;
-  
-});
-
-method.getRoom();
-window.onunload = window.onbeforeunload = function() {
-    socket.close();
-};
-

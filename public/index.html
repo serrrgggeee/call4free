@@ -7,7 +7,7 @@
     
     <meta name="description" content="">
     <meta name="author" content="Sergei Nosachyev">
-    <meta name="google-signin-client_id" content="130656375808-lf3qre8scvdu8poro6jlh1hj7tel4ef7.apps.googleusercontent.com">
+    <meta id="google-signin-client_id" name="google-signin-client_id" content="">
     <link rel="icon" href="/docs/4.1/assets/img/favicons/favicon.ico">
     <title>Chats</title>
 
@@ -46,12 +46,8 @@
                     </select>
                   </div>
                   <div class="form-group">
-                    <label for="exampleFormControlSelect1">Choose item</label>
-                    <select id="new_subject" class="form-control">
-                      <option>english</option>
-                      <option>deutch</option>
-                      <option>nihong</option>
-                    </select>
+                    <label for="exampleFormControlSelect1">Choose language</label>
+                    <select class="form-control" id="languages"></select>
                   </div>
                   <button m-click="createRoom" id="create-room" class="btn btn-primary">Create Room</button>
                 </div>
@@ -64,20 +60,12 @@
                 <div class="filter">
                   <div class="form-group">
                     <label for="exampleFormControlSelect1">Choose category</label>
-                    <select m-change="filterCategory" class="form-control">
-                      <option>language</option>
-                      <option>programmin</option>
-                      <option>scient</option>
-                    </select>
+                    <select m-change="filterCategory" id="category_filter" class="form-control"></select>
                   </div>
 
                   <div class="form-group">
-                    <label for="exampleFormControlSelect1">Choose item</label>
-                    <select m-change="filterSubject"  class="form-control">
-                      <option>english</option>
-                      <option>deutch</option>
-                      <option>nihong</option>
-                    </select>
+                    <label for="exampleFormControlSelect1">Choose language</label>
+                    <select m-change="filterSubject"  class="form-control" id="languages_filter"></select>
                   </div>
 
                   <button m-click="clear" class="btn btn-primary">Clear</button>
@@ -106,10 +94,14 @@
       </div>
     </footer>
 
+    <script src='/js/custom_config.js'></script>
+    <script src='/js/helpers/fetch.js'></script>
+    <script src='/js/rooms/method.js'></script>
+    <script src='/js/rooms/data.js'></script>
     <script src='/js/mixins/user.js'></script>
     <script src='/socket.io/socket.io.js'></script>
     <script src='/js/core/directive.js'></script>
-    <script src='/js/rooms.js'></script>
+    <script src='/js/rooms/rooms.js'></script>
     <script src="https://apis.google.com/js/platform.js" async defer></script>
   </body>
 </html>

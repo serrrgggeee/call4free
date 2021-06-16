@@ -15,7 +15,7 @@ class Video extends HTMLElement {
     this.video =  document.getElementById('remoteVideo-' + this.item);
     this.audio =  new Audio();
     this.audio.addEventListener("loadeddata", value => {
-      // this.audio.play();
+    this.audio.play();
     });
 
     this.video['srcObject'] = new MediaStream();

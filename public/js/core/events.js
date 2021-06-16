@@ -42,7 +42,6 @@ socket.on('disconnect',function(){
   console.log("disconnect");
 });
 socket.on('connect',function(){
-  console.log("connect");
   socket.emit('join', room);
 });
 window.onunload = window.onbeforeunload = function(e) {

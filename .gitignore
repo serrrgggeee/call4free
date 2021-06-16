@@ -48,3 +48,6 @@ Thumbs.db
 *.mov
 *.wmv
 
+public/js/custom_config.js
+server_config.js
+

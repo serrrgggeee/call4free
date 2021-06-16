@@ -1,26 +1,3 @@
-const data = {
-  user_load: false,
-  top_right: false,
-  users_room: [],
-  track_enabled_video: false,
-  track_enabled_audio: false,
-  peerConnections: {},
-  audio_tab: false,
-  left_tabs: false,
-  bottom_menu: false,
-  tracks_callback:null,
-  remot_track_added:null,
-  sender:[],
-  dataChannels: [],
-  imageData: "",
-  audio_stream: null,
-  delay: {
-    out:null
-  }
-
-}
-
-
 // callback of document loaded
 function ready() {
   getMedia()
@@ -29,7 +6,7 @@ function ready() {
 }
 
 
-Object.assign(method, {
+let video_functions = {
   addUser(id, callback, description=null, userInfo) {
     data.users_room[id] = userInfo;
     newPeer(id, callback, description);
@@ -50,6 +27,9 @@ Object.assign(method, {
 
   userTracks(peerConnection, id) {
     if(!localVideo['srcObject'])return;
+    for (var key in data.sender) { 
+      delete data.sender[key];
+    }
     for (const track of localVideo['srcObject'].getTracks()) {
       if((track.kind == "audio" && data.track_enabled_audio) || (track.kind == "video" && data.track_enabled_video)) {
         try {
@@ -57,15 +37,17 @@ Object.assign(method, {
         } catch(e) {}
       } else {
         try {
+
           peerConnection.removeTrack(data.sender[track.id]);
-        } catch(e) {}
-        track.stop();
+        } catch(e) {
+          console.log(e)
+        }
         localVideo['srcObject'].removeTrack(track);
       }
     }
   },
 
-  RemoteTrackAdded(streams, id) {
+  RemoteTrackAdded(streams, id) {    
     if(streams) {
       for(let item in streams) {
         let  stream = streams[item];
@@ -136,6 +118,8 @@ Object.assign(method, {
   },
 
   includeHTML() {
+    const signin = document.getElementById("google-signin-client_id");
+    signin.setAttribute("google-signin-client_id", google_sighnin_id);
     const el = document.getElementById("room");
     const file = el.getAttribute("room");
     if (file) {
@@ -187,8 +171,7 @@ Object.assign(method, {
     }
   },
 
-  login() {
-    console.log("login");
-  }
-})
+  login() {}
+}
 
+addMethods(method, video_functions);

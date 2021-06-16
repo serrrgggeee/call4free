@@ -3,28 +3,24 @@ Object.assign(data, {
   isChatInit: []
 });
 
-Object.assign(method, {
-
-  getDate: (today) => {
-    return `${today.getDate()}`.padStart(2, "0")+'.'+(`${today.getMonth() + 1}`.padStart(2, "0"))+'.'+today.getFullYear();
-  },
-  getDateTime: () => {
-    return new Date().toLocaleString();
-  },
+let chat_functions = {
   sendChatMessage : (e) => {
     const chatMessage = document.getElementById("chatMessage");
     const today = new Date();
     let date_time = method.getDateTime();
-    const date = method.getDate(today);
-    const day_time = date_time.split(',');
-    if(date == day_time[0]) {
-      date_time = day_time[1];
+    if(chatMessage['value'].length > 1) {
+      socket.emit('sendChat', {userInfo, message: chatMessage['value'], date_time});
     }
-    socket.emit('sendChat', {userInfo, message: chatMessage['value'], date_time});
     chatMessage['value'] = "";
   },
 
   addChat: item => {
+    const today = new Date();
+    const date = method.getDate(today);
+    const day_time = item.date_time.split(',');
+    if(date == day_time[0]) {
+      item.date_time = day_time[1];
+    }
     const res = `<div class="item">
         <div class="user"><img src="${item.userInfo.img}" class="paa" alt="${item.userInfo.name}" 
             title="${item.userInfo.name}">
@@ -44,7 +40,8 @@ Object.assign(method, {
 
   }
 
-});
+};
+addMethods(method, chat_functions);
 
 socket.on('responseChat', (payload) => {
   const chat_node = document.createElement('div');
@@ -54,21 +51,13 @@ socket.on('responseChat', (payload) => {
 });
 
 socket.on('initChatMessages', (payload) => {
-  console.log(data.isChatInit);
   if(!data.isChatInit.includes(room)) {
     data.isChatInit.push(room);
   }
-
-  const today = new Date();
-  const date = method.getDate(today);
   const chat_node = document.createElement('div');
   method.isUserLoad(1000).then(() => {
     payload.reverse();
     payload.forEach(item=> {
-      const day_time = item.date_time.split(',');
-      if(date == day_time[0]) {
-        item.date_time = day_time[1];
-      }
       chat_node.innerHTML = method.addChat(item);
       document.getElementById("initChatMessages").appendChild(chat_node.firstChild);
     });

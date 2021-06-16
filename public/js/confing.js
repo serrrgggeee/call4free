@@ -20,4 +20,3 @@ const constraints = {
 
 const room = !location.pathname.substring(1) ? 'home' : location.pathname.substring(1);
 
-const method = {};

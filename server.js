@@ -1,3 +1,4 @@
+var custom_config = require('./server_config');
 const credentials = require('./credentials');
 const express = require('express');
 const app = express();
@@ -12,7 +13,7 @@ if (credentials.key && credentials.cert) {
 } else {
   const http = require('http');
   server = http.createServer(app);
-  port = 3000;
+  port = custom_config.port;
 }
 const io = require('socket.io')(server);
 const RoomService = require('./RoomService')(io);
