@@ -1,5 +1,6 @@
 // callback of document loaded
 function ready() {
+  video_functions.includeHTML();
   getMedia()
   data.canvas = document.getElementById('sharedImage');
   // data.ctx = data.canvas.getContext('2d'); TO DO
@@ -119,7 +120,7 @@ let video_functions = {
 
   includeHTML() {
     const signin = document.getElementById("google-signin-client_id");
-    signin.setAttribute("google-signin-client_id", google_sighnin_id);
+    signin.setAttribute("content", google_sighnin_id);
     const el = document.getElementById("room");
     const file = el.getAttribute("room");
     if (file) {
@@ -155,7 +156,6 @@ let video_functions = {
     document.getElementById("userImg")['src'] = userInfo.img;
     document.getElementById("userName").innerHTML = userInfo.name;
     socket.emit('ready', userInfo, "userTracks", 'RemoteTrackAdded');
-    this.includeHTML();
     data.user_load = true;
   },
 
