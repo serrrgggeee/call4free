@@ -14,6 +14,17 @@ let chat_functions = {
     chatMessage['value'] = "";
   },
 
+  editChatMessage : (args) => {
+    const id  = args[0];
+    const chatMessage = document.getElementById("chatMessage");
+    const today = new Date();
+    let date_time = method.getDateTime();
+    if(chatMessage['value'].length > 1) {
+      socket.emit('sendChat', {userInfo, message: chatMessage['value'], date_time});
+    }
+    chatMessage['value'] = "";
+  },
+
   addChat: item => {
     const today = new Date();
     const date = method.getDate(today);
@@ -25,6 +36,7 @@ let chat_functions = {
         <div class="user"><img src="${item.userInfo.img}" class="paa" alt="${item.userInfo.name}" 
             title="${item.userInfo.name}">
           <div class="date-time">${item.date_time}</div>
+          <div class="edit-message" m-click="editChatMessage(${item.id})">edit</div>
         </div>
         <div class="message">${item.message}</div>
       </div>`

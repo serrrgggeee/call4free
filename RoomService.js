@@ -1,9 +1,10 @@
 /** @type {SocketIO.Server} */
 const fs = require('fs');
+const { getClient, query, queryParams } = require("./db");
 let _io;
 const MAX_CLIENTS = 3;
 let chat_opend = false;
-let rooms = {};
+let store_rooms = {};
 fs.readFile('rooms.json', { flag: 'a+' }, (err, data) => {
   if (err) throw err;
   try {
@@ -12,9 +13,26 @@ fs.readFile('rooms.json', { flag: 'a+' }, (err, data) => {
 
 });
 
+function getStoreRooms() {
+  fs.readFile('store_rooms.json', { flag: 'a+' }, (err, data) => {
+    if (err) throw err;
+    try {
+      store_rooms = JSON.parse(data);
+    } catch {}
+
+  });
+}
+
 function changeRooms() {
   let data = JSON.stringify(rooms, null, 2);
   fs.writeFile('rooms.json', data, { flag: 'w' }, (err) => {
+      if (err) throw err;
+  });
+}
+
+function changeStoreRooms() {
+  let data = JSON.stringify(rooms, null, 2);
+  fs.writeFile('store_rooms.json', data, { flag: 'w' }, (err) => {
       if (err) throw err;
   });
 }
@@ -38,12 +56,16 @@ function listen(socket) {
     rooms[room].chat = [];
     rooms[room].ID = userInfo.ID;
     changeRooms();
+    changeStoreRooms();
     socket.broadcast.emit('set_rooms', rooms);
+    newUser(room, data);
+    console.log(rooms[room]);
   });
 
   socket.on('close_room', (room) => {
     if(!rooms[room]["members"] || (rooms[room]["members"] && rooms[room]["members"].length < 1)) {
       delete rooms[room];
+      changeRooms();
       socket.broadcast.emit('set_rooms', rooms);
     }
   });
@@ -57,7 +79,19 @@ function listen(socket) {
 
 
   socket.on('join', function(room) {
-    if(!rooms[room])return;
+    console.log(room);
+    if(!rooms[room]) {
+      getStoreRooms();
+      if(store_rooms[room]) {
+        console.log(store_rooms[room]);
+        rooms[room] = store_rooms[room]
+      } else {
+        rooms[room] = {};
+        rooms[room].chat = [];
+        rooms[room]['privet'] = true;
+        console.log(rooms[room]);
+      }
+    };
     let numClients = 0;
     let member_exist = false;
 
@@ -79,7 +113,9 @@ function listen(socket) {
         }catch(e){
           rooms[room] = {};
         }
+        console.log(111)
         changeRooms();
+        changeStoreRooms();
       });
       socket.on('openChat', () => {   
         socket.emit('initChatMessages', rooms[room].chat);
@@ -105,8 +141,10 @@ function listen(socket) {
       socket.on('remoteVideo', function (message) {
       });
       socket.on('sendChat', function(payload) {
+        console.log(rooms[room]);
         rooms[room].chat.push(payload)
         changeRooms();
+        changeStoreRooms();
         io.to(room).emit('responseChat', payload);
       });
       socket.on('disconnect', function() {
@@ -117,6 +155,7 @@ function listen(socket) {
           });
           rooms[room]["members"].splice(index, 1);
           changeRooms();
+          changeStoreRooms();
           socket.broadcast.emit('set_rooms', rooms);
 
         } catch(e) {}
@@ -127,6 +166,57 @@ function listen(socket) {
     }
   });
 }
+
+/**
+ * Create new user.
+ * @function
+ * @param {function} room - room uri.
+ * @param {function} data - room`s data.
+ */
+  function newUser (room, data){
+    const user = {
+      name: '',
+      email: '',
+      password: ''
+    };
+
+    getClient((errClient, client) => {
+      if (errClient) {
+        console.log(503, errClient);
+      }
+      const pk = 1;
+      queryParams("select * from auth_user where id=$1", [pk], (err, res) => {
+        client.end();
+        console.log(res.rows);
+        let created = true;
+        if (err) {
+          created = false;
+        }
+
+        if (created) {
+          console.log(201, { success: created });
+        }
+        else {
+          console.log(200, { success: created });
+        }
+      }, client);
+      // queryParams("INSERT INTO users (email, name, password) VALUES ($1, $2, $3);", [user.email, user.name, user.password], (err) => {
+      //   client.end();
+      //   let created = true;
+      //   if (err) {
+      //     created = false;
+      //   }
+
+      //   if (created) {
+      //     console.log(201, { success: created });
+      //   }
+      //   else {
+      //     console.log(200, { success: created });
+      //   }
+      // }, client);
+    });
+  };
+
 
 /** @param {SocketIO.Server} io */
 module.exports = function(io) {

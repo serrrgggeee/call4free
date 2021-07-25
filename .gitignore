@@ -3,6 +3,7 @@
 package-lock.json
 .Trash-*
 rooms.json
+store_rooms.json
 
 node_modules/
 dist/

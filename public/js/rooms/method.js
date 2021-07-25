@@ -5,9 +5,9 @@ const method = {
     this.filterRooms();
   },
 
-  filterSubject(e){
+  filterLangauge(e){
     const value = e.target['value'];
-    data.filters["subject"] = value;
+    data.filters["language"] = value;
     this.filterRooms();
   },
 
@@ -23,9 +23,9 @@ const method = {
   createRoom(){
     let room = this.makeid(10);
     const category = document.getElementById("new_category")['value'];
-    const subject = document.getElementById("languages")['value'];
+    const language = document.getElementById("languages")['value'];
     const date_time = this.getDateTime();
-    socket.emit('create_room', room, {category, subject, date_time}, userInfo);
+    socket.emit('create_room', room, {category, language, date_time}, userInfo);
     socket.emit('get_rooms');
   },  
 
@@ -49,12 +49,13 @@ const method = {
     let rooms_str = "";
     for (const i in data.filterd_rooms) {
       const room = data.filterd_rooms[i];
+      if(room.privet) break;
       rooms_str += 
         `<div  class="room">
             <img m-click="closeRoom(${i})" src="/img/ico/close.png" class="close"/>
             <div class="title">
               <div class="theme">theme: ${room.category}</div>
-              <div class="theme">subject: ${room.subject}</div>
+              <div class="theme">language: ${room.language}</div>
               <div class="theme">created: ${room.date_time}</div>
             </div>
             <div class="body">
@@ -147,7 +148,7 @@ const method = {
   },
 
   getCategories() {
-    let categoriesData = fetch('https://video.chat.vokt.ru/comunicate/subject/');
+    let categoriesData = fetch('https://video.chat.vokt.ru/comunicate/category/');
 
 
     categoriesData.then(function(res){

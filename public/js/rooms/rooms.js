@@ -2,6 +2,8 @@ let socket = io.connect(window.location.origin);
 
 socket.on('set_rooms', function (value)  {
   data.rooms = value;
+  console.log(value);
+  console.log(data);
   method.filterRooms();
   data.count = Object.keys(data.filterd_rooms).length;
   method.getLanguages();
