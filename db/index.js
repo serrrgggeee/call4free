@@ -5,6 +5,12 @@
 const { Client } = require("pg");
 const { configDB } = require("./config");
 const log = require("ak-logger");
+const client = new Client(configDB);
+  
+client.connect((err, client, done) => {
+  // const duration = Date.now() - start;
+
+});
 
 module.exports = {
   /**
@@ -32,14 +38,10 @@ module.exports = {
    * @param {function} callback - Function that will be called after processing the query
    * @param {pg.Client} client - Database client already connected
    */
-  queryParams: (text, params, callback, client) => {
-    // const start = Date.now();
-  
-    return client.query(text, params, (err, res) => {
-      // const duration = Date.now() - start;
-  
-      // log.info({text: text, params: params, duration: duration}, "Executed Query:");
-      callback(err, res);
+  queryParams: (text, params, client, callback) => {
+    // const start
+    return client.query(text,  params, (err, res) => {
+        callback(err, res);
     });
   },
 
@@ -59,5 +61,6 @@ module.exports = {
       // log.info({duration: duration}, "New Client Connected");
       callback(err, client, done);
     });
-  }
+  },
+  client
 };

@@ -1,7 +1,7 @@
 const method = {
-  filterCategory(e){
+  filterSubject(e){
     const value = e.target['value'];
-    data.filters["category"] = value;
+    data.filters["subject"] = value;
     this.filterRooms();
   },
 
@@ -22,10 +22,10 @@ const method = {
 
   createRoom(){
     let room = this.makeid(10);
-    const category = document.getElementById("new_category")['value'];
+    const subject = document.getElementById("new_subject")['value'];
     const language = document.getElementById("languages")['value'];
     const date_time = this.getDateTime();
-    socket.emit('create_room', room, {category, language, date_time}, userInfo);
+    socket.emit('create_room', room, {subject, language, date_time}, userInfo);
     socket.emit('get_rooms');
   },  
 
@@ -49,12 +49,12 @@ const method = {
     let rooms_str = "";
     for (const i in data.filterd_rooms) {
       const room = data.filterd_rooms[i];
-      if(room.privet) break;
+      // if(room.privet) break;
       rooms_str += 
         `<div  class="room">
             <img m-click="closeRoom(${i})" src="/img/ico/close.png" class="close"/>
             <div class="title">
-              <div class="theme">theme: ${room.category}</div>
+              <div class="theme">theme: ${room.subject}</div>
               <div class="theme">language: ${room.language}</div>
               <div class="theme">created: ${room.date_time}</div>
             </div>
@@ -74,6 +74,7 @@ const method = {
   },
 
   filterRooms(value){
+    console.log(data.filters);
     if(Object.keys(data.filters).length == 0) {
       data.filterd_rooms = data.rooms;
     } else {
@@ -148,7 +149,7 @@ const method = {
   },
 
   getCategories() {
-    let categoriesData = fetch('https://video.chat.vokt.ru/comunicate/category/');
+    let categoriesData = fetch('https://video.chat.vokt.ru/comunicate/subject/');
 
 
     categoriesData.then(function(res){
@@ -157,12 +158,12 @@ const method = {
       }
       const categories = JSON.parse(res.response);
       for (const i in categories) {
-        const category = categories[i];
+        const subject = categories[i];
         data.categories += 
-          `<option>` + category.name + `</option>`;
+          `<option>` + subject.name + `</option>`;
       }
-      document.getElementById("new_category").innerHTML = data.categories;
-      document.getElementById("category_filter").innerHTML = data.categories;
+      document.getElementById("new_subject").innerHTML = data.categories;
+      document.getElementById("subject_filter").innerHTML = data.categories;
     }).catch(function(error){
       console.log(error);
     });

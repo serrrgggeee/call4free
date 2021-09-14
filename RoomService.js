@@ -1,10 +1,11 @@
 /** @type {SocketIO.Server} */
 const fs = require('fs');
-const { getClient, query, queryParams } = require("./db");
+const { getOrCreateRoom, creatMessage, getMessges } = require("./room_api");
 let _io;
 const MAX_CLIENTS = 3;
 let chat_opend = false;
 let store_rooms = {};
+let rooms = {};
 fs.readFile('rooms.json', { flag: 'a+' }, (err, data) => {
   if (err) throw err;
   try {
@@ -58,8 +59,7 @@ function listen(socket) {
     changeRooms();
     changeStoreRooms();
     socket.broadcast.emit('set_rooms', rooms);
-    newUser(room, data);
-    console.log(rooms[room]);
+    getOrCreateRoom(room, data, userInfo);
   });
 
   socket.on('close_room', (room) => {
@@ -79,17 +79,15 @@ function listen(socket) {
 
 
   socket.on('join', function(room) {
-    console.log(room);
     if(!rooms[room]) {
       getStoreRooms();
+      rooms[room]['privet'] = false;
       if(store_rooms[room]) {
-        console.log(store_rooms[room]);
         rooms[room] = store_rooms[room]
       } else {
         rooms[room] = {};
         rooms[room].chat = [];
-        rooms[room]['privet'] = true;
-        console.log(rooms[room]);
+        // rooms[room]['privet'] = true;
       }
     };
     let numClients = 0;
@@ -113,12 +111,12 @@ function listen(socket) {
         }catch(e){
           rooms[room] = {};
         }
-        console.log(111)
         changeRooms();
         changeStoreRooms();
       });
-      socket.on('openChat', () => {   
-        socket.emit('initChatMessages', rooms[room].chat);
+      socket.on('openChat', async() => { 
+        const res = await getMessges(room);
+        await socket.emit('initChatMessages', res['rows']);
       });
       socket.on('share_audio', function(tracks_callback, remot_track_added) {
         socket.broadcast.to(room).emit('share_audio', socket.id, tracks_callback, remot_track_added);
@@ -140,12 +138,9 @@ function listen(socket) {
       });
       socket.on('remoteVideo', function (message) {
       });
-      socket.on('sendChat', function(payload) {
-        console.log(rooms[room]);
+      socket.on('sendChat', async function(payload) {
         rooms[room].chat.push(payload)
-        changeRooms();
-        changeStoreRooms();
-        io.to(room).emit('responseChat', payload);
+        creatMessage(room, payload, io);
       });
       socket.on('disconnect', function() {
         socket.broadcast.to(room).emit('bye', socket.id);
@@ -166,56 +161,6 @@ function listen(socket) {
     }
   });
 }
-
-/**
- * Create new user.
- * @function
- * @param {function} room - room uri.
- * @param {function} data - room`s data.
- */
-  function newUser (room, data){
-    const user = {
-      name: '',
-      email: '',
-      password: ''
-    };
-
-    getClient((errClient, client) => {
-      if (errClient) {
-        console.log(503, errClient);
-      }
-      const pk = 1;
-      queryParams("select * from auth_user where id=$1", [pk], (err, res) => {
-        client.end();
-        console.log(res.rows);
-        let created = true;
-        if (err) {
-          created = false;
-        }
-
-        if (created) {
-          console.log(201, { success: created });
-        }
-        else {
-          console.log(200, { success: created });
-        }
-      }, client);
-      // queryParams("INSERT INTO users (email, name, password) VALUES ($1, $2, $3);", [user.email, user.name, user.password], (err) => {
-      //   client.end();
-      //   let created = true;
-      //   if (err) {
-      //     created = false;
-      //   }
-
-      //   if (created) {
-      //     console.log(201, { success: created });
-      //   }
-      //   else {
-      //     console.log(200, { success: created });
-      //   }
-      // }, client);
-    });
-  };
 
 
 /** @param {SocketIO.Server} io */

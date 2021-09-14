@@ -8,7 +8,7 @@ document.addEventListener('click', e => {
     if(res[1]) {
       args = res[1].split(")")[0].split(",");
     }
-    method[m](args);
+    method[m](e, args);
   } catch(e) {}
 });
 
