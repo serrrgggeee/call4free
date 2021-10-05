@@ -13,6 +13,36 @@ const { getClient, query, queryParams, client } = require("../db");
  */
 
 var self = module.exports = {
+  closeRoom: async(data, rooms, socket) => {
+    console.log(data);
+    await queryParams(
+        "UPDATE comunicate_room SET active =false WHERE id=$1 RETURNING *;", 
+        [data.id],
+        client,
+        (err, res) => {
+          console.log(err);
+          let updated = true;
+          if (err) {
+            updated = false;
+          }
+
+          if (updated) {
+            console.log(201, { success: updated });
+            socket.broadcast.emit('set_rooms', rooms);
+          }
+          else {
+            console.log(200, { success: updated });
+          }
+        });
+  },
+  getRooms: async() => {
+    return await client.query(
+      `select *, room.id as id, subj.name as subject, lang.name as language from comunicate_room as room
+      JOIN comunicate_language as lang ON lang.id = room.language_id
+      JOIN comunicate_subject as subj ON subj.id = room.subject_id
+      where room.active=true;`
+      );
+  }, 
   getRoom: async(room) => {
     return await client.query("select * from comunicate_room where name=$1", [room]);
   }, 

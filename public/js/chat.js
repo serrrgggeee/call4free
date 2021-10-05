@@ -32,13 +32,16 @@ let chat_functions = {
     const today = new Date();
     const date = method.getDate(today);
     const created = (new Date(item.created));
-    if(date == created) {
-      item.date_time = created;
+    if(date == method.getDate(created)) {
+      item.datetime = method.formatAMPM(created);    
+    } else {
+      item.datetime =  `${method.getDate(created)} ${method.formatAMPM(created)}`;
     }
+
     const res = `<div class="item">
         <div class="user"><img src="${item.user_info.img}" class="paa" alt="${item.user_info.name}" 
             title="${item.user_info.name}">
-          <div class="date-time">${item.created}</div>
+          <div class="date-time">${item.datetime}</div>
           <div class="edit-message" m-click="editChatMessage(${item.id})">edit</div>
         </div>
         <div id="message_${item.id}" class="message">${item.message}</div>
@@ -47,12 +50,6 @@ let chat_functions = {
   },
 
   updateChat: item => {
-    const today = new Date();
-    const date = method.getDate(today);
-    const created = (new Date(item.created));
-    if(date == created) {
-      item.date_time = created;
-    }
     const chatWraper = document.getElementById(`message_${item.id}`).innerHTML = item.message;
   },
 

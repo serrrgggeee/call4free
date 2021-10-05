@@ -1,48 +1,19 @@
 /** @type {SocketIO.Server} */
 const fs = require('fs');
-const { getOrCreateRoom, creatMessage, getMessges } = require("./room_api");
+const { getOrCreateRoom, creatMessage, getMessges, getRooms, closeRoom } = require("./room_api");
+const { getKeyByValue } = require("./helpers");
 let _io;
 const MAX_CLIENTS = 3;
 let chat_opend = false;
 let store_rooms = {};
-let rooms = {};
-fs.readFile('rooms.json', { flag: 'a+' }, (err, data) => {
-  if (err) throw err;
-  try {
-    rooms = JSON.parse(data);
-  } catch {}
-
+let rooms = [];
+getRooms().then((res)=> {
+  rooms = res.rows;
 });
 
-function getStoreRooms() {
-  fs.readFile('store_rooms.json', { flag: 'a+' }, (err, data) => {
-    if (err) throw err;
-    try {
-      store_rooms = JSON.parse(data);
-    } catch {}
-
-  });
-}
-
-function changeRooms() {
-  let data = JSON.stringify(rooms, null, 2);
-  fs.writeFile('rooms.json', data, { flag: 'w' }, (err) => {
-      if (err) throw err;
-  });
-}
-
-function changeStoreRooms() {
-  let data = JSON.stringify(rooms, null, 2);
-  fs.writeFile('store_rooms.json', data, { flag: 'w' }, (err) => {
-      if (err) throw err;
-  });
-}
-
 /** @param {SocketIO.Socket} socket */
-function listen(socket) {
+async function listen(socket) {
   const io = _io;
-  const listeners = io.nsps['/'].adapter.rooms;
-
   socket.on('get_rooms', function() {
     socket.emit('set_rooms', rooms);
   });
@@ -51,22 +22,26 @@ function listen(socket) {
     chat_opend = value;
   });
 
+  socket.on('senAdminChat', async function(payload) {
+    rooms[payload.room].chat.push(payload)
+    creatMessage(payload.room, payload, io);
+ });
+
   socket.on('create_room', (room, data, userInfo) => {
     room = "room/" + room;
-    rooms[room] = data;
-    rooms[room].chat = [];
-    rooms[room].ID = userInfo.ID;
-    changeRooms();
-    changeStoreRooms();
+    data.ID = userInfo.ID;
+    rooms.push(data);
     socket.broadcast.emit('set_rooms', rooms);
     getOrCreateRoom(room, data, userInfo);
   });
 
-  socket.on('close_room', (room) => {
-    if(!rooms[room]["members"] || (rooms[room]["members"] && rooms[room]["members"].length < 1)) {
-      delete rooms[room];
-      changeRooms();
-      socket.broadcast.emit('set_rooms', rooms);
+  socket.on('close_room', (r) => {
+    console.log(rooms);
+    console.log(r);
+    const [room, index] = getKeyByValue(rooms, 'name', r);
+    if(!room["members"] || (room["members"] && room["members"].length < 1)) {
+      rooms.splice(index, 1);
+      closeRoom(room, rooms, socket);
     }
   });
 
@@ -77,10 +52,13 @@ function listen(socket) {
       socket.to(id).emit('send', message);
   });  
 
+  socket.broadcast.emit('connecting', 'rooms');
+  socket.on('sendChat', async function(payload) {
+   
+  });
 
   socket.on('join', function(room) {
-    if(!rooms[room]) {
-      getStoreRooms();
+    if(rooms[room] !== undefined) {
       rooms[room]['privet'] = false;
       if(store_rooms[room]) {
         rooms[room] = store_rooms[room]
@@ -111,8 +89,6 @@ function listen(socket) {
         }catch(e){
           rooms[room] = {};
         }
-        changeRooms();
-        changeStoreRooms();
       });
       socket.on('openChat', async() => { 
         const res = await getMessges(room);
@@ -149,8 +125,6 @@ function listen(socket) {
             return "/#" + member.socketId == socket.id;
           });
           rooms[room]["members"].splice(index, 1);
-          changeRooms();
-          changeStoreRooms();
           socket.broadcast.emit('set_rooms', rooms);
 
         } catch(e) {}

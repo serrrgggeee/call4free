@@ -2,18 +2,30 @@ const method = {
   filterSubject(e){
     const value = e.target['value'];
     data.filters["subject"] = value;
+    if(value.length == 0) {
+      delete data.filters["subject"];
+    }
+    console.log(data);
     this.filterRooms();
   },
 
-  filterLangauge(e){
+  filterLanguage(e){
     const value = e.target['value'];
     data.filters["language"] = value;
+    if(value.length == 0) {
+      delete data.filters["language"];
+    }
     this.filterRooms();
   },
 
   clear(e){
     data.filters = {};
     this.filterRooms();
+    languages_filter
+    const subject = document.getElementById("subject_filter");
+    const language = document.getElementById("languages_filter");
+    subject.selectedIndex = 0;
+    language.selectedIndex = 0;
   },
 
   getDateTime() {
@@ -29,7 +41,7 @@ const method = {
     socket.emit('get_rooms');
   },  
 
-  closeRoom(room){
+  closeRoom(e, room){
     socket.emit('close_room', room[0]);
     socket.emit('get_rooms');
   },
@@ -50,13 +62,14 @@ const method = {
     for (const i in data.filterd_rooms) {
       const room = data.filterd_rooms[i];
       // if(room.privet) break;
+      const created = (new Date(room.date_time));
       rooms_str += 
         `<div  class="room">
-            <img m-click="closeRoom(${i})" src="/img/ico/close.png" class="close"/>
+            <img m-click="closeRoom(${room.name})" src="/img/ico/close.png" class="close"/>
             <div class="title">
               <div class="theme">theme: ${room.subject}</div>
               <div class="theme">language: ${room.language}</div>
-              <div class="theme">created: ${room.date_time}</div>
+              <div class="theme">created: ${method.getDate(created)} ${method.formatAMPM(created)}</div>
             </div>
             <div class="body">
               <a href="${i}" class="h" target="_blank">`
@@ -74,12 +87,12 @@ const method = {
   },
 
   filterRooms(value){
-    console.log(data.filters);
     if(Object.keys(data.filters).length == 0) {
       data.filterd_rooms = data.rooms;
     } else {
       const filtering_rooms = Object.assign({}, data.rooms);
       for (const filter in data.filters) {
+        console.log(filter);
         const value = data.filters[filter];
         for (const room in filtering_rooms) {
             if(data.rooms[room][filter].toLowerCase() != value.toLowerCase()) {
@@ -136,6 +149,8 @@ const method = {
         return data.languages;
       }
       const languages = JSON.parse(res.response);
+       data.languages += 
+          `<option value>---select language---</option>`;
       for (const i in languages) {
         const language = languages[i];
         data.languages += 
@@ -157,6 +172,8 @@ const method = {
         return data.categories;
       }
       const categories = JSON.parse(res.response);
+      data.categories += 
+          `<option value>--select subject---</option>`;
       for (const i in categories) {
         const subject = categories[i];
         data.categories += 
