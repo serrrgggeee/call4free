@@ -27,17 +27,15 @@ async function listen(socket) {
     creatMessage(payload.room, payload, io);
  });
 
-  socket.on('create_room', (room, data, userInfo) => {
+  socket.on('create_room', async (room, data, userInfo) => {
     room = "room/" + room;
     data.ID = userInfo.ID;
-    rooms.push(data);
-    socket.broadcast.emit('set_rooms', rooms);
-    getOrCreateRoom(room, data, userInfo);
+    await getOrCreateRoom(room, data, userInfo)
+
+    //socket.broadcast.emit('set_rooms', rooms);
   });
 
   socket.on('close_room', (r) => {
-    console.log(rooms);
-    console.log(r);
     const [room, index] = getKeyByValue(rooms, 'name', r);
     if(!room["members"] || (room["members"] && room["members"].length < 1)) {
       rooms.splice(index, 1);
@@ -48,14 +46,6 @@ async function listen(socket) {
   socket.on('swithOnRemoteVideo', (room) => {
       socket.broadcast.to(room).emit('swithOnRemoteVideo');
   })
-  socket.on('send', (id, message) => {   
-      socket.to(id).emit('send', message);
-  });  
-
-  socket.broadcast.emit('connecting', 'rooms');
-  socket.on('sendChat', async function(payload) {
-   
-  });
 
   socket.on('join', function(room) {
     if(rooms[room] !== undefined) {
@@ -92,6 +82,8 @@ async function listen(socket) {
       });
       socket.on('openChat', async() => { 
         const res = await getMessges(room);
+        const [r, index] = getKeyByValue(rooms, 'name', room);
+        rooms[index].chat = res.rows;
         await socket.emit('initChatMessages', res['rows']);
       });
       socket.on('share_audio', function(tracks_callback, remot_track_added) {
@@ -115,7 +107,8 @@ async function listen(socket) {
       socket.on('remoteVideo', function (message) {
       });
       socket.on('sendChat', async function(payload) {
-        rooms[room].chat.push(payload)
+        const [r, index] = getKeyByValue(rooms, 'name', room);
+        rooms[index].chat.push(payload)
         creatMessage(room, payload, io);
       });
       socket.on('disconnect', function() {

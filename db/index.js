@@ -41,7 +41,7 @@ module.exports = {
   queryParams: (text, params, client, callback) => {
     // const start
     return client.query(text,  params, (err, res) => {
-        callback(err, res);
+      return callback(err, res);
     });
   },
 

@@ -21,7 +21,6 @@ const method = {
   clear(e){
     data.filters = {};
     this.filterRooms();
-    languages_filter
     const subject = document.getElementById("subject_filter");
     const language = document.getElementById("languages_filter");
     subject.selectedIndex = 0;
@@ -62,6 +61,7 @@ const method = {
     for (const i in data.filterd_rooms) {
       const room = data.filterd_rooms[i];
       // if(room.privet) break;
+      console.log(room);
       const created = (new Date(room.date_time));
       rooms_str += 
         `<div  class="room">
@@ -72,7 +72,7 @@ const method = {
               <div class="theme">created: ${method.getDate(created)} ${method.formatAMPM(created)}</div>
             </div>
             <div class="body">
-              <a href="${i}" class="h" target="_blank">`
+              <a href="${room.name}" class="h" target="_blank">`
               + this.members(room.members) +
               `<div class="d-flex justify-content-between align-items-center">
                 <div class="btn-group">

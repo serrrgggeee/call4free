@@ -14,7 +14,6 @@ const { getClient, query, queryParams, client } = require("../db");
 
 var self = module.exports = {
   closeRoom: async(data, rooms, socket) => {
-    console.log(data);
     await queryParams(
         "UPDATE comunicate_room SET active =false WHERE id=$1 RETURNING *;", 
         [data.id],
@@ -37,7 +36,8 @@ var self = module.exports = {
   },
   getRooms: async() => {
     return await client.query(
-      `select *, room.id as id, subj.name as subject, lang.name as language from comunicate_room as room
+      `select *, room.id as id, room.name as name, subj.name as subject, lang.name as language
+      from comunicate_room as room
       JOIN comunicate_language as lang ON lang.id = room.language_id
       JOIN comunicate_subject as subj ON subj.id = room.subject_id
       where room.active=true;`
@@ -61,25 +61,27 @@ var self = module.exports = {
     let subject = await self.getSubject(data.subject);
     let date = new Date().toLocaleString();
     let user_info = JSON.stringify(userInfo);
-    queryParams(
-      "INSERT INTO comunicate_room (name, created, updated, date_time, user_id, language_id, subject_id, user_info, active) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);", 
+    const res = await queryParams(
+      "INSERT INTO comunicate_room (name, created, updated, date_time, user_id, language_id, subject_id, user_info, active) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)RETURNING *;", 
       [room, date, date, date, data.ID, language.rows[0].id, subject.rows[0].id, user_info, true],
       client,
       (err, res) => {
-        console.log(err);
+        console.log(res)
         let created = true;
         if (err) {
           created = false;
         }
-
+          
         if (created) {
-          console.log(201, { success: created });
+          console.log(created);
+          return new  Promise((resolve, reject) => {
+            resolve(res)
+          })
         }
         else {
           console.log(200, { success: created });
         }
       });
-    return [];
   }, 
 
   creatMessage: async(room, data, io) => {
@@ -135,7 +137,8 @@ var self = module.exports = {
     if(res.rows.length > 0) {
       return res
     } else {
-      res = self.createRoom(room, data, userInfo);
+      await self.createRoom(room, data, userInfo).then(r => console.log(r));
+
     }
   }
 };
