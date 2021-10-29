@@ -1,6 +1,5 @@
 function shareImage(e){
     const target = e.target;
-    console.log(target);
    
     const imageList = document.getElementById('image-list');
     for (let i = 0; i < target.files.length; i++) {

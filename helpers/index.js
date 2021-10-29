@@ -5,6 +5,6 @@ module.exports = {
             return [array[i], i];
         }
     }
-    return null;
+    return [];
   }
 }

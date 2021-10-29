@@ -4,6 +4,7 @@ function ready() {
   getMedia()
   data.canvas = document.getElementById('sharedImage');
   // data.ctx = data.canvas.getContext('2d'); TO DO
+  userInfo["socketId"] = socket.id;
 }
 
 
@@ -157,21 +158,7 @@ let video_functions = {
     document.getElementById("userName").innerHTML = userInfo.name;
     socket.emit('ready', userInfo, "userTracks", 'RemoteTrackAdded');
     data.user_load = true;
-  },
-
-  setUserInfo() {
-    if(userInfo) {
-      userInfo["img"] = userInfo.getImageUrl();
-      userInfo["ID"] = userInfo.getId();
-      userInfo["name"] = userInfo.getName();
-      userInfo["socketId"] = socket.id;
-      method.setUserParams();
-    } else {
-      method.login(userInfo);
-    }
-  },
-
-  login() {}
+  }
 }
 
 addMethods(method, video_functions);

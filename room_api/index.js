@@ -13,123 +13,74 @@ const { getClient, query, queryParams, client } = require("../db");
  */
 
 var self = module.exports = {
-  closeRoom: async(data, rooms, socket) => {
-    await queryParams(
-        "UPDATE comunicate_room SET active =false WHERE id=$1 RETURNING *;", 
-        [data.id],
-        client,
-        (err, res) => {
-          console.log(err);
-          let updated = true;
-          if (err) {
-            updated = false;
-          }
-
-          if (updated) {
-            console.log(201, { success: updated });
-            socket.broadcast.emit('set_rooms', rooms);
-          }
-          else {
-            console.log(200, { success: updated });
-          }
-        });
+  closeRoom: async(data) => {
+    await queryParams("UPDATE comunicate_room SET active =false WHERE id=$1 RETURNING *;", [data.id], client);
   },
+
   getRooms: async() => {
     return await client.query(
-      `select *, room.id as id, room.name as name, subj.name as subject, lang.name as language
+      `select 
+      array_remove(array_agg(CASE WHEN memb.user_info is not null THEN (memb.id, memb.user_info) ELSE NULL END), NULL) member,
+      json_agg(json_build_object('id', memb.id, 'user_info', memb.user_info)) members1,
+      case when memb.user_info is null then '[]' else json_agg(json_build_object('id', memb.id, 'user_info', memb.user_info)) end as members,
+      room.id, room.name as name, subj.name as subject, lang.name as language, room.created
       from comunicate_room as room
-      JOIN comunicate_language as lang ON lang.id = room.language_id
-      JOIN comunicate_subject as subj ON subj.id = room.subject_id
-      where room.active=true;`
-      );
+      LEFT JOIN comunicate_language as lang ON lang.id = room.language_id
+      LEFT JOIN comunicate_subject as subj ON subj.id = room.subject_id
+      LEFT JOIN comunicate_member as memb ON memb.room_id = room.id and memb.active = true
+      where room.active group by room.id, subj.name, lang.name, memb.user_info;`
+    );
   }, 
+
   getRoom: async(room) => {
-    return await client.query("select * from comunicate_room where name=$1", [room]);
+    return await client.query("select * from comunicate_room where name=$1", [room.name]);
   }, 
-  getLanguage: async(language) => {
-    return await client.query("select * from comunicate_language where name=$1", [language]);
-  },   
-  getSubject: async(subject) => {
-    return await client.query("select * from comunicate_subject where name=$1", [subject]);
+
+  getMessges: async(room_id) => {
+    return await client.query("select * from comunicate_chat where room_id=$1", [room_id]);
   }, 
-  getMessges: async(room) => {
-    let room_id = await self.getRoom(room);
-    return await client.query("select * from comunicate_chat where room_id=$1", [room_id.rows[0].id]);
-  }, 
+
   createRoom: async(room, data, userInfo) => {
-    let language = await self.getLanguage(data.language);
-    let subject = await self.getSubject(data.subject);
     let date = new Date().toLocaleString();
     let user_info = JSON.stringify(userInfo);
-    const res = await queryParams(
-      "INSERT INTO comunicate_room (name, created, updated, date_time, user_id, language_id, subject_id, user_info, active) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)RETURNING *;", 
-      [room, date, date, date, data.ID, language.rows[0].id, subject.rows[0].id, user_info, true],
-      client,
-      (err, res) => {
-        console.log(res)
-        let created = true;
-        if (err) {
-          created = false;
-        }
-          
-        if (created) {
-          console.log(created);
-          return new  Promise((resolve, reject) => {
-            resolve(res)
-          })
-        }
-        else {
-          console.log(200, { success: created });
-        }
-      });
+    return await queryParams(
+      "WITH insertRooms AS \
+      (INSERT INTO comunicate_room (name, created, updated, date_time, user_id, language_id, subject_id, user_info, active) \
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)\
+      RETURNING *) \
+      select *, room.id as id, room.name as name, subj.name as subject, lang.name as language \
+      from insertRooms as room \
+      JOIN comunicate_language as lang ON lang.id = room.language_id \
+      JOIN comunicate_subject as subj ON subj.id = room.subject_id \
+      where room.active=true;",
+      [room, date, date, date, data.ID, data.language, data.subject, user_info, true],
+      client);
   }, 
 
   creatMessage: async(room, data, io) => {
-    let room_id = await self.getRoom(room);
-    let subject = await self.getSubject(data.subject);
     let date = new Date().toLocaleString();
     let user_info = JSON.stringify(data.userInfo);
     if(data.editId) {
       await queryParams(
         "UPDATE comunicate_chat SET message=$2 WHERE id = $1 RETURNING *;", 
         [data.editId, data.message],
-        client,
-        (err, res) => {
-          console.log(err);
-          let created = true;
-          if (err) {
-            created = false;
-          }
-
-          if (created) {
-            console.log(201, { success: created });
-            io.to(room).emit('responseChat', res.rows[0], data.editId);
-          }
-          else {
-            console.log(200, { success: created });
-          }
-        });
+        client)
+        .then(res=> {
+          console.log(201, { success: true });
+           io.to(room.name).emit('responseChat', res.rows[0], data.editId);
+        })
+        .catch(err => console.log(200, { success: false }));
         return true;
       }
     await queryParams(
       "INSERT INTO comunicate_chat (message, created, updated, user_info, room_id, active, shared, shared_room_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *;", 
-      [data.message, date, date, user_info, room_id.rows[0].id, true, false, null],
-      client,
-      (err, res) => {
-        console.log(err);
-        let created = true;
-        if (err) {
-          created = false;
-        }
-
-        if (created) {
-          console.log(201, { success: created });
-          io.to(room).emit('responseChat', res.rows[0]);
-        }
-        else {
-          console.log(200, { success: created });
-        }
-      });
+      [data.message, date, date, user_info, room.id, true, false, null],
+      client)
+      .then(res=> {
+        console.log(201, { success: true });
+          io.to(room.name).emit('responseChat', res.rows[0]);
+      })
+      .catch(err => console.log(200, { success: false }));;
   },
 
   getOrCreateRoom: async(room, data, userInfo) => {
@@ -137,8 +88,40 @@ var self = module.exports = {
     if(res.rows.length > 0) {
       return res
     } else {
-      await self.createRoom(room, data, userInfo).then(r => console.log(r));
+      return self.createRoom(room, data, userInfo);
 
     }
-  }
+  }, 
+
+  getMember: async(room, userInfo) => {
+    return client.query("select * from comunicate_member where login=$1 and room_id=$2", [userInfo['email'], room.id]);
+  },
+
+  updatetMember: async(room, userInfo) => {
+    return queryParams("UPDATE comunicate_member SET active =true, user_info =$3 WHERE login=$1 and room_id=$2 RETURNING *;", [userInfo['email'], room.id, userInfo], client);
+  },
+
+  createMember: async(room, userInfo) => {
+    let date = new Date().toLocaleString();
+    return await queryParams(
+      "INSERT INTO comunicate_member (room_id, login, created, updated, user_info, active) \
+      VALUES ($1, $2, $3, $4, $5, $6)\
+      RETURNING *;",
+      [room.id, userInfo['email'], date, date, userInfo, true],
+      client);
+  },
+
+  getOrCreateMember: async(room, userInfo) => {
+    let res = await self.updatetMember(room, userInfo);
+    if(res.rows.length > 0) {
+      return { res: res.rows, created: false };
+    } else {
+      return { res: await self.createMember(room, userInfo), created: true };
+    }
+  },
+
+  hideMember: async(id) => {
+    await queryParams("UPDATE comunicate_member SET active =false WHERE id=$1 RETURNING *;", [id], client);
+  },
+  
 };

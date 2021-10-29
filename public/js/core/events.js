@@ -45,5 +45,5 @@ socket.on('connect',function(){
   socket.emit('join', room);
 });
 window.onunload = window.onbeforeunload = function(e) {
-  socket.emit('disconnect');
+  socket.emit('disconnect', userInfo);
 }; 

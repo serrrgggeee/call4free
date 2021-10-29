@@ -38,11 +38,9 @@ module.exports = {
    * @param {function} callback - Function that will be called after processing the query
    * @param {pg.Client} client - Database client already connected
    */
-  queryParams: (text, params, client, callback) => {
+  queryParams: (text, params, client) => {
     // const start
-    return client.query(text,  params, (err, res) => {
-      return callback(err, res);
-    });
+    return client.query(text,  params);
   },
 
   /**

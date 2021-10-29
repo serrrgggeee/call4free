@@ -5,7 +5,6 @@ const method = {
     if(value.length == 0) {
       delete data.filters["subject"];
     }
-    console.log(data);
     this.filterRooms();
   },
 
@@ -23,8 +22,8 @@ const method = {
     this.filterRooms();
     const subject = document.getElementById("subject_filter");
     const language = document.getElementById("languages_filter");
-    subject.selectedIndex = 0;
-    language.selectedIndex = 0;
+    subject['selectedIndex'] = 0;
+    language['selectedIndex'] = 0;
   },
 
   getDateTime() {
@@ -37,23 +36,14 @@ const method = {
     const language = document.getElementById("languages")['value'];
     const date_time = this.getDateTime();
     socket.emit('create_room', room, {subject, language, date_time}, userInfo);
-    socket.emit('get_rooms');
   },  
 
   closeRoom(e, room){
     socket.emit('close_room', room[0]);
-    socket.emit('get_rooms');
   },
 
   getRoom(){
-    setTimeout(() => {
-      if(data.count <= 0) {
-        socket.emit('get_rooms');
-        this.getRoom();
-      } else {
-
-      }
-    }, 1000);
+    socket.emit('get_rooms');
   },
 
   setRooms() {
@@ -61,8 +51,7 @@ const method = {
     for (const i in data.filterd_rooms) {
       const room = data.filterd_rooms[i];
       // if(room.privet) break;
-      console.log(room);
-      const created = (new Date(room.date_time));
+      const created = (new Date(room.created));
       rooms_str += 
         `<div  class="room">
             <img m-click="closeRoom(${room.name})" src="/img/ico/close.png" class="close"/>
@@ -72,9 +61,9 @@ const method = {
               <div class="theme">created: ${method.getDate(created)} ${method.formatAMPM(created)}</div>
             </div>
             <div class="body">
-              <a href="${room.name}" class="h" target="_blank">`
-              + this.members(room.members) +
-              `<div class="d-flex justify-content-between align-items-center">
+              <a href="${room.name}"  id="room_${room.id}" class="h" target="_blank">
+              <span id="room_members_${room.id}">${this.members(room.members)}</span>
+              <div class="d-flex justify-content-between align-items-center">
                 <div class="btn-group">
                   <button type="button" class="btn">join</button>
                 </div>
@@ -84,6 +73,12 @@ const method = {
         </div>`;
     }
     document.getElementById("rooms").innerHTML = rooms_str;
+  },  
+
+  addMember(room, member) {
+    const memb = `<img  class="member_item" src="${ member.img }" :alt="${ member.name }">`
+    const members = document.getElementById(`room_members_${room.id}`);
+    members.appendChild(htmlToElements(memb)[0]);
   },
 
   filterRooms(value){
@@ -92,7 +87,6 @@ const method = {
     } else {
       const filtering_rooms = Object.assign({}, data.rooms);
       for (const filter in data.filters) {
-        console.log(filter);
         const value = data.filters[filter];
         for (const room in filtering_rooms) {
             if(data.rooms[room][filter].toLowerCase() != value.toLowerCase()) {
@@ -108,23 +102,13 @@ const method = {
   members(room_members) {
     let members = "";
     for (const i in room_members) {
-      const member = room_members[i];
-      members += `<img  class="card-text" src="${ member.img }" :alt="${ member.name }">`
+      const member = room_members[i].user_info;
+      const user_id = room_members[i].id;
+      members += `<img id="user_id_${user_id}"class="member_item" src="${ member.img }" :alt="${ member.name }">`
     }
     return members;
   },
 
-  setUserInfo() {
-    if(userInfo) {
-      userInfo["img"] = userInfo.getImageUrl();
-      userInfo["ID"] = userInfo.getId();
-      userInfo["name"] = userInfo.getName();
-      userInfo["socketId"] = socket.id;
-      method.setUserParams();
-    } else {
-      method.login(userInfo);
-    }
-  },
   setUserParams() {
     document.getElementById("userImg")['src'] = userInfo.img;
     document.getElementById("userName").innerHTML = userInfo.name;
@@ -154,7 +138,7 @@ const method = {
       for (const i in languages) {
         const language = languages[i];
         data.languages += 
-          `<option>` + language.name + `</option>`;
+          `<option value="${language.pk}">${language.name}</option>`;
       }
       document.getElementById("languages").innerHTML = data.languages;
       document.getElementById("languages_filter").innerHTML = data.languages;
@@ -177,7 +161,7 @@ const method = {
       for (const i in categories) {
         const subject = categories[i];
         data.categories += 
-          `<option>` + subject.name + `</option>`;
+          `<option value="${subject.pk}"> ${subject.name} </option>`;
       }
       document.getElementById("new_subject").innerHTML = data.categories;
       document.getElementById("subject_filter").innerHTML = data.categories;
