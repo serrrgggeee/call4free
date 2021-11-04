@@ -1,8 +1,11 @@
 /** @type {SocketIO.Server} */
+const INFO = 'info';
+const WARNING = 'warning';
+const ERROR = 'error';
 const fs = require('fs');
 const { getOrCreateRoom, creatMessage, getMessges, getRooms, 
   closeRoom, getOrCreateMember, hideMember, clearRooms } = require("./room_api");
-const { getKeyByValue } = require("./helpers");
+const { getKeyByValue, writeFile } = require("./helpers");
 let _io;
 const MAX_CLIENTS = 3;
 let chat_opend = false;
@@ -21,6 +24,10 @@ async function listen(socket) {
 
   socket.on('chat_opend', value => {
     chat_opend = value;
+  });
+
+  socket.on('logging', (type, message, value) => {
+    writeFile(`${type}.txt`, {type, message, value})
   });
 
   socket.on('senAdminChat', async function(payload) {
@@ -49,8 +56,11 @@ async function listen(socket) {
       closeRoom(room)
       .then(res=> {
            io.emit('set_rooms', rooms);
+           writeFile(`${INFO}.txt`, {type: INFO, message: 'close_room', room})
       })
-      .catch(err => console.log(200, { success: false }));
+      .catch(err => {
+        writeFile(`${INFO}.txt`, {type: ERROR, message: 'close_room', err})
+      });
     }
   });
 

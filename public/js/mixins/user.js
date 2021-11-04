@@ -2,6 +2,7 @@ let  userInfo = {};
 
 function onSignIn(googleUser) {
   userInfo = googleUser.getBasicProfile();
+  socket.emit('logging', INFO, 'sign in', userInfo);
   method.setUserInfo();
 }
 

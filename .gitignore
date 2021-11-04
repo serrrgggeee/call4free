@@ -48,6 +48,7 @@ Thumbs.db
 *.flv
 *.mov
 *.wmv
+*.txt
 
 public/js/custom_config.js
 server_config.js

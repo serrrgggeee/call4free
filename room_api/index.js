@@ -66,7 +66,6 @@ var self = module.exports = {
         [data.editId, data.message],
         client)
         .then(res=> {
-          console.log(201, { success: true });
            io.to(room.name).emit('responseChat', res.rows[0], data.editId);
         })
         .catch(err => console.log(200, { success: false }));
