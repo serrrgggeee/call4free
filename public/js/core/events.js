@@ -39,11 +39,15 @@ socket.on('answer', function(id, description) {
 });
 
 socket.on('disconnect',function(){
-  console.log("disconnect");
+  method.disconnect();
 });
+
 socket.on('connect',function(){
-  socket.emit('join', room);
+  method.connect();
+  userInfo["socketId"] = socket.id;
 });
-window.onunload = window.onbeforeunload = function(e) {
-  socket.emit('disconnect', userInfo);
-}; 
+
+socket.on('close_client',function(id){
+  method.close_client(id, socket.id);
+});
+

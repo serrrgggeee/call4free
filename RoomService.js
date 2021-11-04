@@ -1,12 +1,13 @@
 /** @type {SocketIO.Server} */
 const fs = require('fs');
 const { getOrCreateRoom, creatMessage, getMessges, getRooms, 
-  closeRoom, getOrCreateMember, hideMember } = require("./room_api");
+  closeRoom, getOrCreateMember, hideMember, clearRooms } = require("./room_api");
 const { getKeyByValue } = require("./helpers");
 let _io;
 const MAX_CLIENTS = 3;
 let chat_opend = false;
 let rooms = [];
+clearRooms();
 getRooms().then((res)=> {
   rooms = res.rows;
 });
@@ -47,7 +48,6 @@ async function listen(socket) {
       rooms.splice(index, 1);
       closeRoom(room)
       .then(res=> {
-          console.log(201, { success: true });
            io.emit('set_rooms', rooms);
       })
       .catch(err => console.log(200, { success: false }));
@@ -58,14 +58,13 @@ async function listen(socket) {
       socket.broadcast.to(room).emit('swithOnRemoteVideo');
   })
 
-  socket.on('join', function(room) {
+  socket.on('join', function(room, userInfo) {
     const [r, index] = getKeyByValue(rooms, 'name', room);
     if(r !== undefined) {
       r['privet'] = false;
     };
     let numClients = 0;
     let member_exist = false;
-
     if (numClients < MAX_CLIENTS) {
       socket.on('ready', function(userInfo, tracks_callback, remot_track_added) {
         getOrCreateMember(r, userInfo).then(result => {
@@ -74,10 +73,14 @@ async function listen(socket) {
             if(!r["members"]) {
               r["members"] = [];
             }
-            if(created) {
-              r["members"].push(userInfo);
-              socket.broadcast.emit('add_member', r, userInfo);
+            const id = res.rows? res.rows[0].id: res[0].id; 
+            const [m, index] = getKeyByValue(r["members"], 'id', id);
+            if(index === undefined) {
+              r["members"].push({'id': id, 'user_info': userInfo});
+              socket.broadcast.emit('add_member', r, userInfo, id);
               socket.broadcast.to(room).emit('ready', socket.id, tracks_callback, remot_track_added, userInfo);
+            } else {
+              socket.broadcast.to(room).emit('close_client', socket.id);
             }
           }catch(e){
             rooms[room] = {};
@@ -114,18 +117,21 @@ async function listen(socket) {
         r.chat.push(payload)
         creatMessage(r, payload, io);
       });
-      socket.on('disconnect', function(userInfo) {
+      socket.on('disconnect', function(info) {
         socket.broadcast.to(room).emit('bye', socket.id);
         try {
           const index = r["members"].findIndex(member => {
-            return member.user_info.login == userInfo.email;
+            return member.user_info.email == userInfo.email;
           });
-          const user_id = r["members"][index].id;
-          r["members"].splice(index, 1);
-          hideMember(user_id);
+          if(index > -1 && info.includes('transport')) {
+            const user_id = r["members"][index].id;
+            r["members"].splice(index, 1);
+            hideMember(user_id);
+          }
           socket.broadcast.emit('set_rooms', rooms);
 
-        } catch(e) {}
+        } catch(e) {
+        }
       });
       socket.join(room);
     } else {

@@ -4,7 +4,6 @@ function ready() {
   getMedia()
   data.canvas = document.getElementById('sharedImage');
   // data.ctx = data.canvas.getContext('2d'); TO DO
-  userInfo["socketId"] = socket.id;
 }
 
 
@@ -42,7 +41,6 @@ let video_functions = {
 
           peerConnection.removeTrack(data.sender[track.id]);
         } catch(e) {
-          console.log(e)
         }
         localVideo['srcObject'].removeTrack(track);
       }
@@ -156,9 +154,36 @@ let video_functions = {
   setUserParams() { 
     document.getElementById("userImg")['src'] = userInfo.img;
     document.getElementById("userName").innerHTML = userInfo.name;
+    socket.emit('join', room, userInfo);
     socket.emit('ready', userInfo, "userTracks", 'RemoteTrackAdded');
     data.user_load = true;
-  }
+  },
+
+  join(ms) {
+    setTimeout(() => {
+        if(data.disconnected) {
+          video_functions.join(1000);
+        } else {
+          socket.emit('ready', userInfo, "userTracks", 'RemoteTrackAdded');
+        }
+      }, ms)
+  },
+
+  disconnect(){
+    data.disconnected = true;
+    video_functions.join(1000);
+  },
+
+  connect(){
+    data.disconnected = false;
+  },
+
+  close_client(id, socket_id){
+    if(id != socket_id) {
+      socket.close();
+      window.close();
+    }
+  },
 }
 
 addMethods(method, video_functions);

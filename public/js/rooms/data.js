@@ -4,5 +4,6 @@ const data = {
   count: 0,
   filters: {},
   languages: "",
-  categories: ""
+  categories: "",
+  disconnected: true
 }

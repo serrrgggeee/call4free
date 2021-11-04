@@ -46,6 +46,15 @@ const method = {
     socket.emit('get_rooms');
   },
 
+  disconnect(){
+    data.disconnected = true;
+  },
+
+  connect(){
+    data.disconnected = false;
+  },
+
+
   setRooms() {
     let rooms_str = "";
     for (const i in data.filterd_rooms) {
@@ -73,10 +82,12 @@ const method = {
         </div>`;
     }
     document.getElementById("rooms").innerHTML = rooms_str;
-  },  
+  }, 
 
-  addMember(room, member) {
-    const memb = `<img  class="member_item" src="${ member.img }" :alt="${ member.name }">`
+  addMember(room, member, id) {
+    const member_id = document.getElementById(`user_id_${id}`);
+    if(member_id) return;
+    const memb = `<img  class="member_item" id="user_id_${id}" src="${ member.img }" :alt="${ member.name }">`
     const members = document.getElementById(`room_members_${room.id}`);
     members.appendChild(htmlToElements(memb)[0]);
   },
@@ -104,7 +115,7 @@ const method = {
     for (const i in room_members) {
       const member = room_members[i].user_info;
       const user_id = room_members[i].id;
-      members += `<img id="user_id_${user_id}"class="member_item" src="${ member.img }" :alt="${ member.name }">`
+      members += `<img id="user_id_${user_id}" class="member_item" src="${ member.img }" :alt="${ member.name }">`
     }
     return members;
   },
@@ -143,7 +154,6 @@ const method = {
       document.getElementById("languages").innerHTML = data.languages;
       document.getElementById("languages_filter").innerHTML = data.languages;
     }).catch(function(error){
-      console.log(error);
     });
   },
 
@@ -166,7 +176,6 @@ const method = {
       document.getElementById("new_subject").innerHTML = data.categories;
       document.getElementById("subject_filter").innerHTML = data.categories;
     }).catch(function(error){
-      console.log(error);
     });
   }
 }

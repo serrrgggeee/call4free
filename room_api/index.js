@@ -111,6 +111,13 @@ var self = module.exports = {
       client);
   },
 
+  clearRooms: async(room, userInfo) => {
+    return await queryParams(
+      "UPDATE comunicate_member SET active =false WHERE active =true;",
+      [],
+      client);
+  },
+
   getOrCreateMember: async(room, userInfo) => {
     let res = await self.updatetMember(room, userInfo);
     if(res.rows.length > 0) {

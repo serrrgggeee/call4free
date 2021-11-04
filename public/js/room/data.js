@@ -16,6 +16,7 @@ const data = {
   audio_stream: null,
   delay: {
     out:null
-  }
+  },
+  disconnected: true
 
 }

@@ -10,8 +10,8 @@ socket.on('set_rooms', function (value)  {
   
 });
 
-socket.on('add_member', function (room, userInfo)  {
-  method.addMember(room, userInfo);
+socket.on('add_member', function (room, userInfo, id)  {
+  method.addMember(room, userInfo, id);
   
 });
 
