@@ -43,11 +43,15 @@ socket.on('disconnect',function(){
 });
 
 socket.on('connect',function(){
-  method.connect();
   userInfo["socketId"] = socket.id;
+  method.connect();
 });
 
-socket.on('close_client',function(id){
-  method.close_client(id, socket.id);
+socket.on('closeclient',function(id){
+  method.close_client(id);
+});
+
+socket.on('closesocketidset', () => {
+  method.closesocketid_set();
 });
 

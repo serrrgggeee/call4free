@@ -204,6 +204,7 @@ button:focus {
   direction: grid;
   grid-template-columns: repeat(7, 1fr);
   grid-gap: 10px;
+  height: 70px;
 }
 
 .navigation-bar .canvas_button {

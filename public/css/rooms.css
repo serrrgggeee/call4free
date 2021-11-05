@@ -77,6 +77,14 @@ h1{
   .rooms {
     grid-template-columns: repeat(1, 1fr);
   }
+
+  .create-room {
+    grid-template-columns: 1fr;
+  }
+
+  .filter {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (min-width: 701px) and (max-width: 1200px){ 

@@ -154,7 +154,7 @@ let video_functions = {
   setUserParams() { 
     document.getElementById("userImg")['src'] = userInfo.img;
     document.getElementById("userName").innerHTML = userInfo.name;
-    socket.emit('join', room, userInfo);
+    socket.emit('join', socket.id, room, userInfo);
     socket.emit('ready', userInfo, "userTracks", 'RemoteTrackAdded');
     data.user_load = true;
   },
@@ -164,6 +164,7 @@ let video_functions = {
         if(data.disconnected) {
           video_functions.join(1000);
         } else {
+          socket.emit('join', socket.id, room, userInfo);
           socket.emit('ready', userInfo, "userTracks", 'RemoteTrackAdded');
         }
       }, ms)
@@ -178,11 +179,17 @@ let video_functions = {
     data.disconnected = false;
   },
 
-  close_client(id, socket_id){
-    if(id != socket_id) {
-      socket.close();
-      window.close();
+  close_client(id){
+
+    socket.emit('logging', INFO, 'close_client', {id: socket.id});
+    if(socket.id == id) {
+      socket.emit('setclosesocketid', id);
     }
+  },  
+
+  closesocketid_set() {
+    socket.close();
+    window.close();
   },
 }
 

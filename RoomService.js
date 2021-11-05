@@ -56,7 +56,7 @@ async function listen(socket) {
       closeRoom(room)
       .then(res=> {
            io.emit('set_rooms', rooms);
-           writeFile(`${INFO}.txt`, {type: INFO, message: 'close_room', room})
+            
       })
       .catch(err => {
         writeFile(`${INFO}.txt`, {type: ERROR, message: 'close_room', err})
@@ -68,7 +68,8 @@ async function listen(socket) {
       socket.broadcast.to(room).emit('swithOnRemoteVideo');
   })
 
-  socket.on('join', function(room, userInfo) {
+  socket.on('join', function(socket_id, room, userInfo) {
+    let socketid = null;
     const [r, index] = getKeyByValue(rooms, 'name', room);
     if(r !== undefined) {
       r['privet'] = false;
@@ -90,7 +91,7 @@ async function listen(socket) {
               socket.broadcast.emit('add_member', r, userInfo, id);
               socket.broadcast.to(room).emit('ready', socket.id, tracks_callback, remot_track_added, userInfo);
             } else {
-              socket.broadcast.to(room).emit('close_client', socket.id);
+              io.to(socket_id).emit('closeclient', socket_id);
             }
           }catch(e){
             rooms[room] = {};
@@ -103,6 +104,12 @@ async function listen(socket) {
         rooms[index].chat = res.rows;
         await socket.emit('initChatMessages', res['rows']);
       });
+
+      socket.on('setclosesocketid', value => {
+        socketid = value;
+        io.to(socket_id).emit('closesocketidset');
+      });
+
       socket.on('share_audio', function(tracks_callback, remot_track_added) {
         socket.broadcast.to(room).emit('share_audio', socket.id, tracks_callback, remot_track_added);
       });
@@ -133,7 +140,10 @@ async function listen(socket) {
           const index = r["members"].findIndex(member => {
             return member.user_info.email == userInfo.email;
           });
-          if(index > -1 && info.includes('transport')) {
+          const data = {info: info, id: socket.id, userInfo, socketid};
+          writeFile(`${INFO}.txt`, {type: ERROR, message: 'disconnect', data})
+          if(socketid == socket_id) return;
+          if(index > -1) {
             const user_id = r["members"][index].id;
             r["members"].splice(index, 1);
             hideMember(user_id);
