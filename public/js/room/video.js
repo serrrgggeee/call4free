@@ -180,7 +180,6 @@ let video_functions = {
   },
 
   close_client(id){
-
     socket.emit('logging', INFO, 'close_client', {id: socket.id});
     if(socket.id == id) {
       socket.emit('setclosesocketid', id);
@@ -189,6 +188,8 @@ let video_functions = {
 
   closesocketid_set() {
     socket.close();
+    var win = window.open("about:blank", "_self");
+    win.close();
     window.close();
   },
 }
