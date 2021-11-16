@@ -5,6 +5,8 @@ const ERROR = 'error';
 const fs = require('fs');
 const { getOrCreateRoom, creatMessage, getMessges, getRooms, 
   closeRoom, getOrCreateMember, hideMember, clearRooms } = require("./room_api");
+
+const { getLesson } = require("./lesson_api");
 const { getKeyByValue, writeFile } = require("./helpers");
 let _io;
 const MAX_CLIENTS = 3;
@@ -20,7 +22,7 @@ async function listen(socket) {
   const io = _io;
   socket.on('get_rooms', function() {
     socket.emit('set_rooms', rooms);
-  });
+  })
 
   socket.on('chat_opend', value => {
     chat_opend = value;
@@ -127,6 +129,11 @@ async function listen(socket) {
       });
       socket.on('candidate', function (id, message) {
         socket.to(id).emit('candidate', socket.id, message);
+      });
+      socket.on('getLesson', function (id) {
+        getLesson(id).then(({statusCode, body, headers}) => {
+          socket.emit('send_lesson', body);
+        })
       });
       socket.on('remoteVideo', function (message) {
       });
