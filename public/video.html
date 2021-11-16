@@ -10,6 +10,11 @@
     <div class="image-list" id="image-list"></div>
 </section>
 
+<section>
+  <button m-click="getLesson(2)">Показать урок</button>
+  <div id="lessons-wrapper"></div>
+</section>
+
 <section class="handles-wrapper" id="chat-wrapper" style="display: none;">
     <div class="chat">
       <img m-click="hideChat" src="/img/ico/close.png" class="close">
@@ -58,3 +63,4 @@
     <input style="display: none;" id="shareImage" type="file" accept="image/*" capture multiple="multiple" class="upload_input"> 
   </div>
 </nav>
+
