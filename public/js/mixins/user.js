@@ -7,15 +7,9 @@ function onSignIn(googleUser) {
 }
 
 let user_functions = {
-  setUserInfo() {
-    if(userInfo) {
-      userInfo["img"] = userInfo.getImageUrl();
-      userInfo["ID"] = userInfo.getId();
-      userInfo["name"] = userInfo.getName();
-      userInfo["email"] = userInfo.getEmail();
-      method.setUserParams();
-    }
-  },
+    setUserParams() { 
+    document.getElementById("userImg")['src'] = userInfo.img;
+    document.getElementById("userName").innerHTML = userInfo.name;
+  }
 }
-
 addMethods(method, user_functions);

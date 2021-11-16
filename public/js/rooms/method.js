@@ -120,11 +120,6 @@ const method = {
     return members;
   },
 
-  setUserParams() {
-    document.getElementById("userImg")['src'] = userInfo.img;
-    document.getElementById("userName").innerHTML = userInfo.name;
-  },
-
   makeid(length) {
     let result           = '';
     let characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';

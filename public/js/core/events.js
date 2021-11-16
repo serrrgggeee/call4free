@@ -1,6 +1,4 @@
 // sockets actions
-document.addEventListener("DOMContentLoaded", ready);
-
 
 socket.on('full', function(room) {
     alert('Room ' + room + ' is full');
