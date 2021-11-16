@@ -1,12 +1,4 @@
 // callback of document loaded
-function ready() {
-  video_functions.includeHTML();
-  getMedia()
-  data.canvas = document.getElementById('sharedImage');
-  // data.ctx = data.canvas.getContext('2d'); TO DO
-}
-
-
 let video_functions = {
   addUser(id, callback, description=null, userInfo) {
     data.users_room[id] = userInfo;
@@ -32,6 +24,7 @@ let video_functions = {
       delete data.sender[key];
     }
     for (const track of localVideo['srcObject'].getTracks()) {
+      console.log(track);
       if((track.kind == "audio" && data.track_enabled_audio) || (track.kind == "video" && data.track_enabled_video)) {
         try {
           data.sender[track.id] = peerConnection.addTrack(track, localVideo['srcObject'] );
@@ -117,27 +110,6 @@ let video_functions = {
     });
   },
 
-  includeHTML() {
-    const signin = document.getElementById("google-signin-client_id");
-    signin.setAttribute("content", google_sighnin_id);
-    const el = document.getElementById("room");
-    const file = el.getAttribute("room");
-    if (file) {
-      const xhttp = new XMLHttpRequest();
-      xhttp.onreadystatechange = function() {
-        if (this.readyState == 4) {
-          if (this.status == 200) {
-            el.innerHTML = this.responseText;
-          }
-          if (this.status == 404) {el.innerHTML = "Page not found.";}
-          el.removeAttribute("room");
-        }
-      }
-      xhttp.open("GET", file, true);
-      xhttp.send();
-      return;
-    }
-  },
   isUserLoad(ms) {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
@@ -151,28 +123,32 @@ let video_functions = {
   },
 
   // callback of google login
-  setUserParams() { 
-    document.getElementById("userImg")['src'] = userInfo.img;
-    document.getElementById("userName").innerHTML = userInfo.name;
-    socket.emit('join', socket.id, room, userInfo);
-    socket.emit('ready', userInfo, "userTracks", 'RemoteTrackAdded');
-    data.user_load = true;
+
+  loadEvent() {
+    var script = document.createElement('script');
+    script.onload = function () {
+      console.log('load');
+    };
+    script.src = '/js/confing.js';
+
+    document.head.appendChild(script); //or something of the likes
   },
 
-  join(ms) {
+  join(ms=1000) {
     setTimeout(() => {
         if(data.disconnected) {
           video_functions.join(1000);
         } else {
           socket.emit('join', socket.id, room, userInfo);
           socket.emit('ready', userInfo, "userTracks", 'RemoteTrackAdded');
+          data.user_load = true;
         }
       }, ms)
   },
 
   disconnect(){
     data.disconnected = true;
-    video_functions.join(1000);
+    video_functions.join();
   },
 
   connect(){
@@ -184,6 +160,9 @@ let video_functions = {
     if(socket.id == id) {
       socket.emit('setclosesocketid', id);
     }
+  },
+  getLesson(e, id){
+    socket.emit('getLesson', id);
   },  
 
   closesocketid_set() {
