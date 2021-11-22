@@ -34,13 +34,25 @@ function newPeer(id, callback, description, emiter) {
     data.peerConnections[id] = peerConnection; 
   }  
   peerConnection.onicecandidate = (event) => {
-    if (event.candidate) {
+    if (event.candidate  && event.candidate.relatedAddress !== null && event.candidate.relatedPort !== null) {
+      const data = {socket_id: id, candidate: event.candidate, description}
+      socket.emit('logging', ICE, 'candidate', data);
       socket.emit('candidate', id, event.candidate);
     }
   };
   callback(id, peerConnection, description);
   peerConnection.ontrack = (event) => method[data.remot_track_added](event.streams, id);
   peerConnection.onremovestream = (event) => method.RemoteTrackAdded(event.streams, id);
+  // Listen for connectionstatechange on the local RTCPeerConnection
+  peerConnection.addEventListener('connectionstatechange', event => {
+      if (peerConnection.connectionState === 'connected') {
+        const data = {state: peerConnection.connectionState, description: 'new peer conected'};
+        socket.emit('logging', ICE, 'candidate conected', data);
+      }else{
+        const data = {state: peerConnection.connectionState, description: 'new peer not conected'};
+        socket.emit('logging', ICE, 'candidate conected', data);
+      }
+  });
 }
 
 
@@ -48,10 +60,24 @@ function onOffer(id, peerConnection, description) {
   method[data.tracks_callback](peerConnection, id);
   peerConnection.setRemoteDescription(description)
   .then(() => peerConnection.createAnswer())
-  .then(sdp => peerConnection.setLocalDescription(sdp))
+  .then(sdp => {
+    const data = {socket_id: id, description, sdp}
+      socket.emit('logging', SDP, 'sdp offer', data);
+    return peerConnection.setLocalDescription(sdp)
+  })
   .then(function () {
       socket.emit('answer', id, peerConnection.localDescription);
   }).catch(function(e) {});
+  // Listen for connectionstatechange on the local RTCPeerConnection
+  peerConnection.addEventListener('connectionstatechange', event => {
+      if (peerConnection.connectionState === 'connected') {
+        const data = {state: peerConnection.connectionState, description: 'offer conected'};
+        socket.emit('logging', ICE, 'candidate conected', data);
+      }else{
+        const data = {state: peerConnection.connectionState, description: 'offer not conected'};
+        socket.emit('logging', ICE, 'candidate conected', data);
+      }
+  });
   try {
     let dataChannel = peerConnection.createDataChannel("myLabel");  
     data.dataChannels[id] = dataChannel;
@@ -64,10 +90,24 @@ function onOffer(id, peerConnection, description) {
 function onReady(id, peerConnection) {
   method[data.tracks_callback](peerConnection, id);
   peerConnection.createOffer()
-  .then(sdp => peerConnection.setLocalDescription(sdp))
+  .then(sdp => {
+    const data = {socket_id: id, sdp}
+    socket.emit('logging', SDP, 'sdp on ready', data);
+    return peerConnection.setLocalDescription(sdp)
+  })
   .then(() => {
     socket.emit('offer', id, peerConnection.localDescription, data.tracks_callback, data.remot_track_added, userInfo);
   }).catch(function(e) {});
+    // Listen for connectionstatechange on the local RTCPeerConnection
+  peerConnection.addEventListener('connectionstatechange', event => {
+      if (peerConnection.connectionState === 'connected') {
+        const data = {state: peerConnection.connectionState, description: 'ready conected'};
+        socket.emit('logging', ICE, 'candidate conected', data);
+      }else{
+        const data = {state: peerConnection.connectionState, description: 'ready not conected'};
+        socket.emit('logging', ICE, 'candidate conected', data);
+      }
+  });
   try {
     let dataChannel = peerConnection.createDataChannel("myLabel");  
     data.dataChannels[id] = dataChannel;

@@ -6,8 +6,12 @@ navigator.getUserMedia = navigator.getUserMedia ||
                          navigator.msGetUserMedia;
 
 const config = {
-    'iceServers': [{
-      'urls': ['stun:stun.l.google.com:19302']
+    'iceServers': [
+        {'urls': [
+            'turn:vokt.ru:8443'
+        ],
+        username: "vokt",
+        credential: "vokt"
     }],
     'RtpDataChannels': true
 };

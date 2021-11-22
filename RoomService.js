@@ -2,6 +2,8 @@
 const INFO = 'info';
 const WARNING = 'warning';
 const ERROR = 'error';
+const SDP = 'sdp';
+const ICE = 'ice';
 const fs = require('fs');
 const { getOrCreateRoom, creatMessage, getMessges, getRooms, 
   closeRoom, getOrCreateMember, hideMember, clearRooms } = require("./room_api");
