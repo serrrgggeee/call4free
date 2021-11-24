@@ -6,7 +6,17 @@ function getMedia(callback) {
     }
   }
   return navigator.mediaDevices.getUserMedia(constraints)
-  .then(stream => { 
+  .then(stream => {
+    const video_log = stream.getTracks()[0];
+    logger(INFO, 'getMedia', {
+      enabled: video_log.enabled, 
+      id: video_log.id, 
+      kind: video_log.kind, 
+      label: video_log.label, 
+      muted: video_log.muted, 
+      readyState: video_log.readyState, 
+      userInfo
+    }, true);
     for (const track of stream.getTracks()) {
       if(!localVideo['srcObject']) {
         localVideo['srcObject'] = new MediaStream();
@@ -27,7 +37,7 @@ function getMedia(callback) {
 }
 
 
-function newPeer(id, callback, description, emiter) {
+function newPeer(id, callback, description) {
   let peerConnection = data.peerConnections[id];
   if(peerConnection === undefined){
     peerConnection = new RTCPeerConnection(config);
@@ -36,7 +46,7 @@ function newPeer(id, callback, description, emiter) {
   peerConnection.onicecandidate = (event) => {
     if (event.candidate  && event.candidate.relatedAddress !== null && event.candidate.relatedPort !== null) {
       const data = {socket_id: id, candidate: event.candidate, description}
-      socket.emit('logging', ICE, 'candidate', data);
+      logger(ICE, 'candidate', data);
       socket.emit('candidate', id, event.candidate);
     }
   };
@@ -47,10 +57,10 @@ function newPeer(id, callback, description, emiter) {
   peerConnection.addEventListener('connectionstatechange', event => {
       if (peerConnection.connectionState === 'connected') {
         const data = {state: peerConnection.connectionState, description: 'new peer conected'};
-        socket.emit('logging', ICE, 'candidate conected', data);
+        logger(ICE, 'candidate conected', data);
       }else{
         const data = {state: peerConnection.connectionState, description: 'new peer not conected'};
-        socket.emit('logging', ICE, 'candidate conected', data);
+        logger(ICE, 'candidate conected', data);
       }
   });
 }
@@ -62,7 +72,7 @@ function onOffer(id, peerConnection, description) {
   .then(() => peerConnection.createAnswer())
   .then(sdp => {
     const data = {socket_id: id, description, sdp}
-      socket.emit('logging', SDP, 'sdp offer', data);
+    logger(SDP, 'sdp offer', data);
     return peerConnection.setLocalDescription(sdp)
   })
   .then(function () {
@@ -72,10 +82,10 @@ function onOffer(id, peerConnection, description) {
   peerConnection.addEventListener('connectionstatechange', event => {
       if (peerConnection.connectionState === 'connected') {
         const data = {state: peerConnection.connectionState, description: 'offer conected'};
-        socket.emit('logging', ICE, 'candidate conected', data);
+        logger(ICE, 'candidate conected', data);
       }else{
         const data = {state: peerConnection.connectionState, description: 'offer not conected'};
-        socket.emit('logging', ICE, 'candidate conected', data);
+        logger(ICE, 'candidate conected', data);
       }
   });
   try {
@@ -92,7 +102,7 @@ function onReady(id, peerConnection) {
   peerConnection.createOffer()
   .then(sdp => {
     const data = {socket_id: id, sdp}
-    socket.emit('logging', SDP, 'sdp on ready', data);
+    logger(SDP, 'sdp on ready', data);
     return peerConnection.setLocalDescription(sdp)
   })
   .then(() => {
@@ -102,10 +112,10 @@ function onReady(id, peerConnection) {
   peerConnection.addEventListener('connectionstatechange', event => {
       if (peerConnection.connectionState === 'connected') {
         const data = {state: peerConnection.connectionState, description: 'ready conected'};
-        socket.emit('logging', ICE, 'candidate conected', data);
+        logger(ICE, 'candidate conected', data);
       }else{
         const data = {state: peerConnection.connectionState, description: 'ready not conected'};
-        socket.emit('logging', ICE, 'candidate conected', data);
+        logger(ICE, 'candidate conected', data);
       }
   });
   try {
@@ -125,6 +135,7 @@ function handleReceiveChannelStatusChange(event) {
 
 
 function  getUserMediaError(error, stream) {
+  logger(INFO, 'getUserMediaError', {error, userInfo}, true);
   data.track_enabled_video = false;
   try{
     for (const track of localVideo['srcObject'].getTracks()) {

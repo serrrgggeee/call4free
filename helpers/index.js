@@ -10,10 +10,13 @@ module.exports = {
     return [];
   },
 
-  writeFile(file, data) {
-    const date = new Date().toLocaleString();
-    fs.writeFile(file, date + ' ----- ' + JSON.stringify(data) + '\n', { flag: 'a+' }, (err) => {
-       if (err) throw err;
-   });
+  writeLogger(file, data, logging=false) {
+    if(logging) {
+      const date = new Date().toLocaleString();
+      fs.writeFile(file, date + ' ----- ' + JSON.stringify(data) + '\n', { flag: 'a+' }, (err) => {
+         if (err) throw err;
+     });
+
+    }
   }
 }

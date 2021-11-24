@@ -9,7 +9,7 @@ const { getOrCreateRoom, creatMessage, getMessges, getRooms,
   closeRoom, getOrCreateMember, hideMember, clearRooms } = require("./room_api");
 
 const { getLesson } = require("./lesson_api");
-const { getKeyByValue, writeFile } = require("./helpers");
+const { getKeyByValue, writeLogger } = require("./helpers");
 let _io;
 const MAX_CLIENTS = 3;
 let chat_opend = false;
@@ -31,7 +31,7 @@ async function listen(socket) {
   });
 
   socket.on('logging', (type, message, value) => {
-    writeFile(`${type}.txt`, {type, message, value})
+    writeLogger(`${type}.txt`, {type, message, value}, true)
   });
 
   socket.on('senAdminChat', async function(payload) {
@@ -63,7 +63,7 @@ async function listen(socket) {
             
       })
       .catch(err => {
-        writeFile(`${INFO}.txt`, {type: ERROR, message: 'close_room', err})
+        writeLogger(`${INFO}.txt`, {type: ERROR, message: 'close_room', err})
       });
     }
   });
@@ -150,7 +150,7 @@ async function listen(socket) {
             return member.user_info.email == userInfo.email;
           });
           const data = {info: info, id: socket.id, userInfo, socketid};
-          writeFile(`${INFO}.txt`, {type: ERROR, message: 'disconnect', data})
+          writeLogger(`${INFO}.txt`, {type: ERROR, message: 'disconnect', data})
           if(socketid == socket_id) return;
           if(index > -1) {
             const user_id = r["members"][index].id;
