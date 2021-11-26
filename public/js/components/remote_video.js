@@ -25,15 +25,20 @@ class Video extends HTMLElement {
     this.img =  document.getElementById('imgsrc-' + this.item);
     this.img['src'] = this.room.img;
 
-
     // Подписываемся на событие video
     this.video.addEventListener('video', (e)=> { 
       this.setVideoStream(e['detail'].video);
-    });
+    });    
 
     // Подписываемся на событие audio
     this.video.addEventListener('audio', (e)=> { 
       this.setAudionStream(e['detail'].audio);
+    });
+
+    this.video.addEventListener('click', (e)=> { 
+      console.log(e);
+      main_video['srcObject'] = this.video['srcObject'];
+      main_video.dataset.email = this.room.email; 
     });
 
   }
@@ -48,8 +53,20 @@ class Video extends HTMLElement {
     return this.getAttribute('item');
   }
 
+  hideVideo() {
+    this.video['srcObject'] = new MediaStream();
+    this.video.style.display = 'none';
+    this.img['src'] = this.room.img;
+    this.img.style.display = 'inherit';
+  }
 
   setVideoStream(track) {
+    track.addEventListener('mute', (e)=> { 
+      this.hideVideo();
+      if(main_video.dataset.email == this.room.email) {
+        main_video['srcObject'] = new MediaStream();
+      }
+    });
     try {
       const img_share =  document.getElementById('getImgShare-' + this.item);
       const tracks = this.video['srcObject'].getTracks()
@@ -61,10 +78,7 @@ class Video extends HTMLElement {
         this.video.style.display = 'inherit';
         this.img.style.display = 'none';
       } else {
-        this.video['srcObject'] = new MediaStream();
-        this.video.style.display = 'none';
-        this.img['src'] = this.room.getImageUrl();
-        this.img.style.display = 'inherit';
+        this.hideVideo();
       }
     } catch(e) {}
   }

@@ -1,5 +1,3 @@
-let socket = io.connect(window.location.origin);
-
 socket.on('set_rooms', function (value)  {
   userInfo["socketId"] = socket.id;
   data.rooms = value;

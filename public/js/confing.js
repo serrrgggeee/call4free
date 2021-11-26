@@ -1,5 +1,6 @@
 const remoteVideos = document.querySelector('.remoteVideos');
 const localVideo = document.querySelector('.localVideo');
+let main_video = null;
 navigator.getUserMedia = navigator.getUserMedia ||
                          navigator.webkitGetUserMedia ||
                          navigator.mozGetUserMedia ||

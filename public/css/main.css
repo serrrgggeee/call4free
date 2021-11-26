@@ -227,11 +227,20 @@ button:focus {
   z-index: 1000;
 }
 
+.mainVideo{
+  position: absolute;
+  top: 41%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 70%;
+  height: 60%;
+}
+
 .remoteVideos{
   padding: 5px;
   padding-bottom: 50px;
   position: absolute;
-  bottom: 7%;
+  bottom: 3%;
   left: 0%;
   width: calc(100% - 10px);
   display: flex;

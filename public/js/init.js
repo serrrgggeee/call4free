@@ -14,6 +14,7 @@ let init_functions = {
             el.innerHTML = this.responseText;
             method.join();
             getMedia()
+            init_functions.setMainVideo();
           }
           if (this.status == 404) {el.innerHTML = "Page not found.";}
           el.removeAttribute("room");
@@ -29,6 +30,12 @@ let init_functions = {
     const signin = document.getElementById("google-signin-client_id");
     signin.setAttribute("content", google_sighnin_id);
   },
+
+  setMainVideo() {
+    main_video =  document.getElementById('mainVideo');
+    main_video['srcObject'] = new MediaStream();
+  },
+
   ready() {
     init_functions.initGoogleUser()
     

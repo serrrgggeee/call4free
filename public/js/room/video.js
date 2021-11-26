@@ -3,16 +3,16 @@ let video_functions = {
   addUser(id, callback, description=null, userInfo) {
     data.users_room[id] = userInfo;
     newPeer(id, callback, description);
-    this.users_room(id);
+    this.users_room(id, userInfo['email']);
   },
 
-  users_room(id) {
-    const video_id = document.getElementById(id);
-    if (video_id) return;
+  users_room(id, email) {
+    const video =document.querySelectorAll(`[data-email="${email}"]`);
+    if (video.length > 0) return;
     const video_node = document.createElement('div');
     let remote_videos_str = 
       `<div class="user__item">
-        <remote-video id="${id}" item=${id} share="item['share']">ffff</remote-video>
+        <remote-video data-email="${email}" id="${id}" item=${id} share="item['share']">ffff</remote-video>
       </div>`;
     video_node.innerHTML = remote_videos_str;
     document.getElementById("remoteVideos").appendChild(video_node.firstChild);
@@ -24,7 +24,6 @@ let video_functions = {
       delete data.sender[key];
     }
     for (const track of localVideo['srcObject'].getTracks()) {
-      console.log(track);
       if((track.kind == "audio" && data.track_enabled_audio) || (track.kind == "video" && data.track_enabled_video)) {
         try {
           data.sender[track.id] = peerConnection.addTrack(track, localVideo['srcObject'] );
@@ -45,13 +44,14 @@ let video_functions = {
       for(let item in streams) {
         let  stream = streams[item];
         const tracks = stream.getTracks();
-        for (const track in tracks) {
+        const email = data.users_room[id]['email'];
+        for (const track in tracks) {          
           const event = new CustomEvent(tracks[track].kind, {
                 detail: {
                   [tracks[track].kind]: tracks[track]
                 }
               });
-          const video =  document.getElementById('remoteVideo-' + id);
+          const video =document.querySelector(`[data-email="${email}"] video`);
           video.dispatchEvent(event);
         }
       }  
@@ -127,7 +127,6 @@ let video_functions = {
   loadEvent() {
     var script = document.createElement('script');
     script.onload = function () {
-      console.log('load');
     };
     script.src = '/js/confing.js';
 
@@ -155,8 +154,8 @@ let video_functions = {
     data.disconnected = false;
   },
 
-  close_client(id){
-    socket.emit('logging', INFO, 'close_client', {id: socket.id});
+  close_client(id) {
+    logger(INFO, 'close_client', {id: socket.id});
     if(socket.id == id) {
       socket.emit('setclosesocketid', id);
     }
