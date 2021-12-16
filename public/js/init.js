@@ -15,6 +15,7 @@ let init_functions = {
             method.join();
             getMedia()
             init_functions.setMainVideo();
+            method.openChat();
           }
           if (this.status == 404) {el.innerHTML = "Page not found.";}
           el.removeAttribute("room");

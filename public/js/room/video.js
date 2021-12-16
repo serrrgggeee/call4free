@@ -170,6 +170,16 @@ let video_functions = {
     win.close();
     window.close();
   },
+  openChat(ms=1000) {
+    setTimeout(() => {
+      if(data.disconnected) {
+        video_functions.openChat();
+      } else {
+        socket.emit('openChat');
+      }
+    }, ms)
+
+  }
 }
 
 addMethods(method, video_functions);

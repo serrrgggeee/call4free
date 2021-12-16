@@ -36,8 +36,7 @@ async function listen(socket) {
 
   socket.on('senAdminChat', async function(payload) {
     const [room, index] = getKeyByValue(rooms, 'name', payload.room);
-    room.chat.push(payload)
-    creatMessage(payload.room, payload, io);
+    creatMessage({name: payload.room}, payload, io);
  });
 
   socket.on('create_room', async (room, data, userInfo) => {
@@ -140,7 +139,6 @@ async function listen(socket) {
       socket.on('remoteVideo', function (message) {
       });
       socket.on('sendChat', async function(payload) {
-        r.chat.push(payload)
         creatMessage(r, payload, io);
       });
       socket.on('disconnect', function(info) {

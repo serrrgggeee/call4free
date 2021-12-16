@@ -53,3 +53,7 @@ socket.on('closesocketidset', () => {
   method.closesocketid_set();
 });
 
+socket.on('update_lessons', (payload) => {
+  console.log(payload);
+});
+
