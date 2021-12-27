@@ -51,4 +51,6 @@ Thumbs.db
 *.txt
 
 public/js/custom_config.js
+public/js/ziproom.js
+public/js/ziprooms.js
 server_config.js

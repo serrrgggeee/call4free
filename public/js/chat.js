@@ -72,16 +72,16 @@ let chat_functions = {
   },
 
   checkUnReadMessage() {
+
     let retrievedObject = localStorage.getItem('chatCount');
     let retrieved_chat = JSON.parse(retrievedObject);
+    let count_read_messages = 0;
+    let all_message = document.querySelectorAll(`#initChatMessages .item img:not([title*="${userInfo['name']}"])`).length;
     if(retrieved_chat) {
-      let count_read_messages = retrieved_chat[room]
-      let all_message = document.querySelectorAll(`#initChatMessages .item img:not([title*="${userInfo['name']}"])`).length;
-      if (all_message > count_read_messages) {
-        this.changeDisplayCountMessages(all_message, count_read_messages)
-      }
-
+      count_read_messages = retrieved_chat[room]
     }
+
+    this.changeDisplayCountMessages(all_message, count_read_messages)
     localStorage.setItem('chatCount', JSON.stringify(retrieved_chat));
   },
 
@@ -94,7 +94,10 @@ let chat_functions = {
       chat_node.innerHTML = count_read_messages_str;
       document.getElementById("chat_button").appendChild(chat_node.firstChild);
     } else {
-      document.getElementById('countUnreadMessages').remove();
+      const count_unread_message_node = document.getElementById('countUnreadMessages');
+      if(count_unread_message_node) {
+        document.getElementById('countUnreadMessages').remove();
+      }
     }
   }
 
@@ -106,7 +109,6 @@ socket.on('responseChat', (payload, id) => {
   chat_node.innerHTML = method.addChat(payload);
   const item = document.getElementById("initChatMessages");
   item.insertBefore(chat_node.firstChild, item.firstChild);
-
   const chatWraper = document.getElementById("chat-wrapper");
   if( chatWraper.style.display == 'flex') {
     method.checkReadMessage();
