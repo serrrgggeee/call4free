@@ -62,52 +62,125 @@ let video_functions = {
 
   switchOnVideo() {
     function run() {
-      let display_video = "inherit";
-      const switchOnVideo = document.getElementById('switchOnVideo');
-      if(!constraints.video) {
+      if(localVideo['srcObject']) {
+        for (const track of localVideo['srcObject'].getTracks()) {
+          if(track.kind == "video"){
+            track.stop();
+            localVideo['srcObject'].removeTrack(track);
+          }
+        }
+      }
+      if(display_video == 'none') {
         constraints.video = {
           width: 96,
           height: 96,
         }
         data.track_enabled_video = true;
-        switchOnVideo.classList.add("active");
+        display_video = "inherit";
       }else{
-        data.track_enabled_video = false;
         delete constraints.video;
-        switchOnVideo.classList.remove("active");
+        constraints.audio = true;
+        data.track_enabled_video = false;
         display_video = "none";
       }
 
       data.tracks_callback = "userTracks";
       data.remot_track_added = "RemoteTrackAdded";
 
-      getMedia().then(event => {
+      navigator.mediaDevices.getUserMedia(constraints)
+        .then(function (stream) {
+          for (const track of stream.getTracks()) {
+            if(!localVideo['srcObject']) {
+              localVideo['srcObject'] = new MediaStream();
+            }
+            if(track.kind == "video"){
+              track.enabled = data.track_enabled_video;
+              localVideo['srcObject'].addTrack(track);
+              
+              track.addEventListener('unmute', (e)=> { 
+                  clearTimeout(data.delay.out)
+              });
+              localVideo.addEventListener('suspend', (e)=> { 
+                  if(data.track_enabled_video) {
+                    display_video = 'none'
+                    debounce(method.switchOnVideo, 5000, data.delay)();
+                  }
+              });
+              localVideo.onloadedmetadata = (ev) => {
+                if(!localVideo.srcObject.active) {
+                  display_video = 'none'
+                  debounce(method.switchOnVideo, 3000, data.delay)();
+                }
+              };
+            }
+          }
+      })
+      .then(event => {
         for (const pc in data.peerConnections) {
            newPeer(pc, onReady, null);
         }
-        localVideo.style.display = display_video;
+        if(display_video == 'none') {
+          localVideo.style.display = display_video;
+          localVideo.srcObject.muted = true;
+        } else {
+          localVideo.style.display = display_video;
+        }
+
+      })
+      .catch((err) => {
+        getUserMediaError(err, 'video')
+      });
+      localVideo.addEventListener('playing', event => {
+        switchOnVideo.classList.add("active");
       });
     }
     debounce(run, 1000, data.delay)();
   },
 
   switchOnAudio() {
-    const switchOnAudio =  document.getElementById('switchOnAudio');
-    data.track_enabled_audio = constraints.audio = !constraints.audio;
-    data.tracks_callback = "userTracks";
-    data.remot_track_added = "RemoteTrackAdded";
-
-    if(data.track_enabled_audio) {
-      switchOnAudio.classList.add("active");
-    } else {
-      constraints.audio = false;
-      switchOnAudio.classList.remove("active"); 
-    }
-    getMedia().then(event =>{
-      for (const pc in data.peerConnections) {
-        newPeer(pc, onReady);
+    if(localVideo['srcObject']) {
+      for (const track of localVideo['srcObject'].getTracks()) {
+        if(track.kind == "audio") {
+          track.stop();
+          localVideo['srcObject'].removeTrack(track);  
+        }
       }
-    });
+    }
+    function run() {
+      const switchOnAudio =  document.getElementById('switchOnAudio');
+      data.track_enabled_audio = constraints.audio = !constraints.audio;
+      data.tracks_callback = "userTracks";
+      data.remot_track_added = "RemoteTrackAdded";
+      if(data.track_enabled_audio) {
+        switchOnAudio.classList.add("active");
+      } else {
+        constraints.audio = false;
+        constraints.video = {
+            width: 96,
+            height: 96,
+          }
+        switchOnAudio.classList.remove("active"); 
+      }
+      navigator.mediaDevices.getUserMedia(constraints)
+        .then(function (stream) {
+          for (const track of stream.getTracks()) {
+            if(!localVideo['srcObject']) {
+              localVideo['srcObject'] = new MediaStream();
+            }
+
+            if(track.kind == "audio") {
+              track.enabled = data.track_enabled_audio;
+              localVideo['srcObject'].addTrack(track);
+            }
+          }
+        })
+        .then(event =>{
+        for (const pc in data.peerConnections) {
+          newPeer(pc, onReady);
+        }
+      });
+    }
+    debounce(run, 1000, data.delay)();
   },
 
   isUserLoad(ms) {
@@ -120,17 +193,6 @@ let video_functions = {
         }
       }, ms)
     });
-  },
-
-  // callback of google login
-
-  loadEvent() {
-    var script = document.createElement('script');
-    script.onload = function () {
-    };
-    script.src = '/js/confing.js';
-
-    document.head.appendChild(script); //or something of the likes
   },
 
   join(ms=1000) {

@@ -20,6 +20,6 @@ const config = {
 const constraints = {
     audio: false
 };
-
+let display_video = "none";
 const room = !location.pathname.substring(1) ? 'home' : location.pathname.substring(1);
 

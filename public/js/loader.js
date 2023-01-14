@@ -1,1 +1,1 @@
-document.addEventListener("DOMContentLoaded", method.ready);
+document.addEventListener("DOMContentLoaded", method.ready());

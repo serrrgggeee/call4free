@@ -5,6 +5,7 @@ const data = {
   track_enabled_video: false,
   track_enabled_audio: false,
   peerConnections: {},
+  peerConnectionsInited: [],
   audio_tab: false,
   left_tabs: false,
   bottom_menu: false,

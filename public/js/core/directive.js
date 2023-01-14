@@ -20,6 +20,16 @@ document.addEventListener('change', e => {
   } catch(e) {}
 });
 
+document.addEventListener('submit', e => {
+  const target = e.target;
+  const m = target.getAttribute('m-submit');
+  try {
+    method[m](e);
+  } catch(e) {
+    console.log(e);
+  }
+});
+
 document.addEventListener('keyup', e => {
   if (e.keyCode === 13) {
     e.preventDefault();

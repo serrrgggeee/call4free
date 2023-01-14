@@ -7,7 +7,7 @@
     
     <meta name="description" content="">
     <meta name="author" content="Sergei Nosachyev">
-    <meta id="google-signin-client_id" name="google-signin-client_id" content="">
+    <meta id="google-signin-client_id" name="google-signin-client_id" content="130656375808-ocv5rp7tuthr19s8d6vva9j2pp2m8dm8.apps.googleusercontent.com">
     <link rel="icon" href="/docs/4.1/assets/img/favicons/favicon.ico">
     <title>Chats</title>
 
@@ -23,6 +23,7 @@
           </div>
           <img id="userImg" class="paa" alt="">
           <h3 id="userName" class="ig"></h3>
+          <button m-click="googleAuth" id="google-login" class="btn btn-primary">Login with Google</button>
         </div>
       </div>
     </nav>
@@ -94,8 +95,9 @@
       </div>
     </footer>
     
+    <script src='/js/conf.js'></script>
     <script src='/socket.io/socket.io.js'></script>
-    <script src='/js/ziprooms.js'></script>
+    <script src='/js/rooms/scripts.js'></script>
     <script src="https://apis.google.com/js/platform.js" async defer></script>
   </body>
 </html>

@@ -5,7 +5,7 @@ class Video extends HTMLElement {
     this.innerHTML = 
     `<div class="111-111">
       <video class="remoteVideo" id="remoteVideo-${this.item}" playsinline autoplay muted></video>
-      <img id="imgsrc-${this.item}" src="imgsrc"></img>
+      <img class="image_room" id="imgsrc-${this.item}" src="imgsrc"></img>
       <!--span id="audio_share" class="get_share" id="getAudioShare">listen</span-->
       <span  id="getImgShare-${this.item}" class="img_share get_share">watch</span>
       <!--audio class="remoteAudio" id="remoteAudio-${this.item}" controls autoplay></audio-->
@@ -36,7 +36,6 @@ class Video extends HTMLElement {
     });
 
     this.video.addEventListener('click', (e)=> { 
-      console.log(e);
       main_video['srcObject'] = this.video['srcObject'];
       main_video.dataset.email = this.room.email; 
     });
@@ -60,12 +59,21 @@ class Video extends HTMLElement {
     this.img.style.display = 'inherit';
   }
 
+  showVideo(track) {
+    this.video['srcObject'].addTrack(track);
+    this.video.style.display = 'inherit';
+    this.img.style.display = 'none';
+  }
+
   setVideoStream(track) {
     track.addEventListener('mute', (e)=> { 
       this.hideVideo();
       if(main_video.dataset.email == this.room.email) {
         main_video['srcObject'] = new MediaStream();
       }
+    });    
+    track.addEventListener('unmute', (e)=> { 
+      this.showVideo(track)
     });
     try {
       const img_share =  document.getElementById('getImgShare-' + this.item);
@@ -74,9 +82,7 @@ class Video extends HTMLElement {
         this.video['srcObject'].removeTrack(tracks[i]);
       }
       if(track.kind) {
-        this.video['srcObject'].addTrack(track);
-        this.video.style.display = 'inherit';
-        this.img.style.display = 'none';
+        this.showVideo(track);
       } else {
         this.hideVideo();
       }

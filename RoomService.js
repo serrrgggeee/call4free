@@ -71,6 +71,10 @@ async function listen(socket) {
       socket.broadcast.to(room).emit('swithOnRemoteVideo');
   })
 
+  socket.on('change_user', async function(payload) {
+    socket.broadcast.emit('change_user_server', payload);
+  });
+
   socket.on('join', function(socket_id, room, userInfo) {
     let socketid = null;
     const [r, index] = getKeyByValue(rooms, 'name', room);
@@ -87,6 +91,7 @@ async function listen(socket) {
             if(!r["members"]) {
               r["members"] = [];
             }
+            writeLogger("server_logs.txt", {'type': 'members', 'room':r, 'members': r["members"]}, true);
             const id = res.rows? res.rows[0].id: res[0].id; 
             const [m, index] = getKeyByValue(r["members"], 'id', id);
             if(index === undefined) {
@@ -94,6 +99,7 @@ async function listen(socket) {
               socket.broadcast.emit('add_member', r, userInfo, id);
               socket.broadcast.to(room).emit('ready', socket.id, tracks_callback, remot_track_added, userInfo);
             } else {
+              writeLogger(`server_logs.txt`, {'type': 'closeclient', 'room':r, 'member_id': id}, true);
               io.to(socket_id).emit('closeclient', socket_id);
             }
           }catch(e){
@@ -145,7 +151,7 @@ async function listen(socket) {
         socket.broadcast.to(room).emit('bye', socket.id);
         try {
           const index = r["members"].findIndex(member => {
-            return member.user_info.email == userInfo.email;
+            return member.user_info.email == userInfo.email &&  member.user_info.name == userInfo.name;
           });
           const data = {info: info, id: socket.id, userInfo, socketid};
           writeLogger(`${INFO}.txt`, {type: ERROR, message: 'disconnect', data})

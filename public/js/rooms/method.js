@@ -148,8 +148,7 @@ const method = {
       }
       document.getElementById("languages").innerHTML = data.languages;
       document.getElementById("languages_filter").innerHTML = data.languages;
-    }).catch(function(error){
-    });
+    }).catch(function(error){});
   },
 
   getCategories() {
@@ -170,7 +169,6 @@ const method = {
       }
       document.getElementById("new_subject").innerHTML = data.categories;
       document.getElementById("subject_filter").innerHTML = data.categories;
-    }).catch(function(error){
-    });
-  }
+    }).catch(function(error){});
+  },
 }

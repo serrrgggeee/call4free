@@ -97,16 +97,16 @@ var self = module.exports = {
   },
 
   updatetMember: async(room, userInfo) => {
-    return queryParams("UPDATE comunicate_member SET active =true, user_info =$3 WHERE login=$1 and room_id=$2 RETURNING *;", [userInfo['email'], room.id, userInfo], client);
+    return queryParams("UPDATE comunicate_member SET active =true, user_info =$4 WHERE login=$1 and room_id=$2 and auth_site=$3 RETURNING *;", [userInfo['email'], room.id, userInfo['auth_site'], userInfo], client);
   },
 
   createMember: async(room, userInfo) => {
     let date = new Date().toLocaleString();
     return await queryParams(
-      "INSERT INTO comunicate_member (room_id, login, created, updated, user_info, active) \
-      VALUES ($1, $2, $3, $4, $5, $6)\
+      "INSERT INTO comunicate_member (room_id, login, auth_site, created, updated, user_info, active) \
+      VALUES ($1, $2, $3, $4, $5, $6, $7)\
       RETURNING *;",
-      [room.id, userInfo['email'], date, date, userInfo, true],
+      [room.id, userInfo['email'], userInfo['auth_site'], date, date, userInfo, true],
       client);
   },
 

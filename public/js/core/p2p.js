@@ -1,41 +1,16 @@
-function getMedia(callback) {
-  if(localVideo['srcObject']) {
-    for (const track of localVideo['srcObject'].getTracks()) {
-      track.stop();
-      localVideo['srcObject'].removeTrack(track);
-    }
-  }
-  return navigator.mediaDevices.getUserMedia(constraints)
-  .then(stream => {
-    const video_log = stream.getTracks()[0];
-    logger(INFO, 'getMedia', {
-      enabled: video_log.enabled, 
-      id: video_log.id, 
-      kind: video_log.kind, 
-      label: video_log.label, 
-      muted: video_log.muted, 
-      readyState: video_log.readyState, 
-      userInfo
-    }, true);
-    for (const track of stream.getTracks()) {
-      if(!localVideo['srcObject']) {
-        localVideo['srcObject'] = new MediaStream();
-      }
+function getTracks() {
 
-      if(track.kind == "video"){
-        track.enabled = data.track_enabled_video;
-        localVideo['srcObject'].addTrack(track);
-      }
-
-      if(track.kind == "audio") {
-        track.enabled = data.track_enabled_audio;
-        localVideo['srcObject'].addTrack(track);
-      }
-    }
-  })
-  .catch(getUserMediaError);
 }
 
+localVideo.addEventListener('pause', event => {
+    switchOnVideo.classList.remove("active");
+});
+localVideo.addEventListener('abort', event => {
+    switchOnVideo.classList.remove("active");
+});
+localVideo.addEventListener('emptied', event => {
+    switchOnVideo.classList.remove("active");
+});
 
 function newPeer(id, callback, description) {
   let peerConnection = data.peerConnections[id];
@@ -51,7 +26,9 @@ function newPeer(id, callback, description) {
     }
   };
   callback(id, peerConnection, description);
-  peerConnection.ontrack = (event) => method[data.remot_track_added](event.streams, id);
+  peerConnection.ontrack = (event) => {
+    method[data.remot_track_added](event.streams, id);
+  }
   peerConnection.onremovestream = (event) => method.RemoteTrackAdded(event.streams, id);
   // Listen for connectionstatechange on the local RTCPeerConnection
   peerConnection.addEventListener('connectionstatechange', event => {
@@ -59,6 +36,7 @@ function newPeer(id, callback, description) {
         const data = {state: peerConnection.connectionState, description: 'new peer conected'};
         logger(ICE, 'candidate conected', data);
       }else{
+
         const data = {state: peerConnection.connectionState, description: 'new peer not conected'};
         logger(ICE, 'candidate conected', data);
       }
@@ -134,9 +112,18 @@ function handleReceiveChannelStatusChange(event) {
 }
 
 
-function  getUserMediaError(error, stream) {
-  logger(INFO, 'getUserMediaError', {error, userInfo}, true);
+function  getUserMediaError(error, device) {
+  const error_data = {'TypeError': error.TypeError}
+  logger(INFO, 'getUserMediaError', {error: error_data, userInfo}, true);
   data.track_enabled_video = false;
+  switch(error.name) {
+    case 'NotFoundError': 
+      const error_data =`${device} устройство не найдено возможно оно не включено`;
+      logger(INFO, 'device not found', {error: error_data, userInfo}, true);
+      break
+    default:
+      break
+  }
   try{
     for (const track of localVideo['srcObject'].getTracks()) {
       track.enabled = data.track_enabled_video;
@@ -150,6 +137,11 @@ function handleRemoteHangup(id) {
   data.peerConnections[id] && data.peerConnections[id].close();
   delete data.peerConnections[id];
   delete data.users_room[key];
+// TO DO
+/*  const index = peerConnectionsInited.indexOf(id);
+  if (index !== -1) {
+    peerConnectionsInited.splice(index, 1);
+  }*/
 }
 
 
