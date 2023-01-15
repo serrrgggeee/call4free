@@ -1,9 +1,19 @@
 let init_functions = {
+  showOpenButton() {
+
+  },
   initDjangoUser(token) {
       method.initDjangoUserMixin(token)
       .then(xhr => {
         method.setUserInfo();
       });
+  },
+  async initGoogleUser() {
+    var authInstance = await window.gapi.auth2.getAuthInstance();
+    var signedIn = authInstance.isSignedIn.get();
+    currentUser = authInstance.currentUser;
+    userInfo = currentUser.get().getBasicProfile();
+    method.setUserInfo('google');
   },
 
   setMainVideo() {
@@ -15,7 +25,9 @@ let init_functions = {
     const token_info = localStorage.getItem('token').split('---');
     const auth_method = token_info[0];
     const token = token_info[1];
-    init_functions[auth_method](token);
+    try {
+      init_functions[auth_method](token);
+    } catch (error) {}
   }
 }
 addMethods(method, init_functions);
