@@ -3,14 +3,15 @@
 
 function fetch() {
   var url = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
-  var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-  var headers =  arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+  var arg = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
   var xhr = new XMLHttpRequest();
   var onFufillment = [];
   var onError = [];
   var onCompletion = [];
-  var method = options.method || "GET";
-  var content_type = options.content_type || "application/json";
+  const method = arg.method || "GET";
+  const headers = arg.headers || {};
+  const content_type = arg.content_type || "application/json";
+  const form_data = arg.form_data || {};
   xhr.open(method, url, true);
 
 
@@ -38,7 +39,7 @@ function fetch() {
       });
     }
   };
-  xhr.send(options.form_data);
+  xhr.send(form_data);
       
   return {
     then: function then(fufillmentFunction) {

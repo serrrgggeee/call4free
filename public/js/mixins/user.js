@@ -88,7 +88,14 @@ let user_functions = {
       e.preventDefault();
       const form_data = new FormData(e.target);
       const boundary = String(Math.random()).slice(2);
-      let regData = fetch(e.target.action, {method: 'post', form_data, content_type: null}).then(xhr => {
+      let regData = fetch(
+        e.target.action, 
+        {
+          method: 'post',
+          form_data, 
+          content_type: null
+        }
+      ).then(xhr => {
         const response = JSON.parse(xhr.response);
         sessionStorage.setItem('bearer_token', response['token']);
         method.showSignOutButton('djangoLogOut');
@@ -127,14 +134,21 @@ let user_functions = {
       })
       .catch(function(error){});
     },
-    testauth(e) {
-      const url = "https://video.chat.vokt.ru/comunicate/language/";
+    setAuthData() {
       const token_info = localStorage.getItem('token').split('---');
       const auth_method = token_info[0];
       const token = token_info[1];
+      return {token, auth_method}
+    },
+    testauth(e) {
+      const url = "https://video.chat.vokt.ru/comunicate/language/";
+      const auth_data = method.setAuthData();
       fetch(url, 
-        {method: 'get'},
-        {"Authorization": "Token " + token}).then(xhr => {
+      {
+        options: {method: 'get'},
+        headers: {"Authorization": "Token " + auth_data.token},
+      })
+      .then(xhr => {
         const response = JSON.parse(xhr.response);
       });
     },
@@ -151,25 +165,28 @@ let user_functions = {
     },
     initDjangoUserMixin(token) {
       const url = "https://video.chat.vokt.ru/user_info/";
+      const auth_data = method.setAuthData();
       return fetch(url, 
-        {method: 'get'},
-        {"Authorization": "Token " + token})
-      .then(xhr => {
-        try {
-          const response = JSON.parse(xhr.response);
-          const id = response.id;
-          const name = response.username;
-          const email = response.email;
-          const image_url = response.userprofile.avatar;
-          const props = {id, name, email, image_url}
-          if(Object.keys(userInfo).length > 0) {
-            userInfoOld = userInfo;;
+        {
+          options: {method: 'get'},
+          headers: {"Authorization": "Token " + auth_data.token},
+        })
+        .then(xhr => {
+          try {
+            const response = JSON.parse(xhr.response);
+            const id = response.id;
+            const name = response.username;
+            const email = response.email;
+            const image_url = response.userprofile.avatar;
+            const props = {id, name, email, image_url}
+            if(Object.keys(userInfo).length > 0) {
+              userInfoOld = userInfo;;
+            }
+            userInfo = new getBasicProfileByEmail(props);
+          } catch (error) {
+            return {};
           }
-          userInfo = new getBasicProfileByEmail(props);
-        } catch (error) {
-          return {};
-        }
       });
-  },
+    },
 }
 addMethods(method, user_functions);

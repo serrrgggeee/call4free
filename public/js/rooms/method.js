@@ -35,7 +35,9 @@ const method = {
     const subject = document.getElementById("new_subject")['value'];
     const language = document.getElementById("languages")['value'];
     const date_time = this.getDateTime();
-    socket.emit('create_room', room, {subject, language, date_time}, userInfo);
+    if(subject && language) {
+      socket.emit('create_room', room, {subject, language, date_time}, userInfo);
+    }
   },  
 
   closeRoom(e, room){
@@ -92,7 +94,7 @@ const method = {
     members.appendChild(htmlToElements(memb)[0]);
   },
 
-  filterRooms(value){
+  filterRooms(){
     if(Object.keys(data.filters).length == 0) {
       data.filterd_rooms = data.rooms;
     } else {
@@ -131,7 +133,14 @@ const method = {
   },
 
   getLanguages() {
-    let languagesData = fetch('https://video.chat.vokt.ru/comunicate/language/');
+    const auth_data = method.setAuthData();
+    let languagesData = fetch(
+      'https://video.chat.vokt.ru/comunicate/language/',
+      {
+        options: {method: 'get'},
+        headers: {"Authorization": "Token " + auth_data.token},
+      }
+    );
 
 
     languagesData.then(function(res){
@@ -144,11 +153,15 @@ const method = {
       for (const i in languages) {
         const language = languages[i];
         data.languages += 
-          `<option value="${language.pk}">${language.name}</option>`;
+          `<option value="${language.name}">${language.name}</option>`;
       }
       document.getElementById("languages").innerHTML = data.languages;
       document.getElementById("languages_filter").innerHTML = data.languages;
-    }).catch(function(error){});
+    }).catch(function(res){
+      if(res.status !== 200) {
+        logger(ERROR, 'languages', {error: res.responseText, userInfo}, true);
+      }
+    });
   },
 
   getCategories() {
@@ -165,10 +178,14 @@ const method = {
       for (const i in categories) {
         const subject = categories[i];
         data.categories += 
-          `<option value="${subject.pk}"> ${subject.name} </option>`;
+          `<option value="${subject.name}"> ${subject.name} </option>`;
       }
       document.getElementById("new_subject").innerHTML = data.categories;
       document.getElementById("subject_filter").innerHTML = data.categories;
-    }).catch(function(error){});
+    }).catch(function(res){
+      if(res.status !== 200) {
+        logger(ERROR, 'subject', {error: res.responseText, userInfo}, true);
+      }
+    });
   },
 }
