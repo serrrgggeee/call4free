@@ -78,6 +78,7 @@ async function listen(socket) {
   socket.on('join', function(socket_id, room, userInfo) {
     let socketid = null;
     const [r, index] = getKeyByValue(rooms, 'name', room);
+    if(r == undefined) return;
     if(r !== undefined) {
       r['privet'] = false;
     };
