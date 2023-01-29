@@ -1,2 +1,17 @@
-uglifyjs constant.js custom_config.js helpers/fetch.js core/index.js rooms/method.js mixins/date_mixins.js rooms/data.js \
-rooms/user.js mixins/user.js socket_loader.js helpers/logger.js core/directive.js rooms/rooms.js rooms/init.js loader.js -o ziprooms.js
+uglifyjs \
+constant.js \
+helpers/fetch.js \
+core/index.js \
+rooms/method.js \
+mixins/date_mixins.js \
+rooms/data.js \
+rooms/user.js \
+mixins/user.js \
+socket_loader.js \
+helpers/logger.js \
+core/directive.js \
+rooms/rooms.js \
+rooms/init.js \
+components/auth.js \
+loader.js \
+-o ziprooms.js

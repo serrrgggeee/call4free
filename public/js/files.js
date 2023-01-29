@@ -1,6 +1,5 @@
 const scripts_room_dev = [
     {name: 'constant.js', async: false, defer: true, path: '/js/'},
-    {name: 'custom_config.js', async: false, defer: true,path: '/js/'}, 
     {name: 'room/data.js', async: false, defer: true,path: '/js/'}, 
     {name: 'room/method.js', async: false, defer: true, path: '/js/'}, 
     {name: 'core/index.js', async: false, defer: true, path: '/js/'}, 
@@ -14,6 +13,7 @@ const scripts_room_dev = [
     {name: 'helpers/debounce.js', async: false, defer: true, path: '/js/'}, 
     {name: 'core/directive.js', async: false, defer: true, path: '/js/'},
     {name: 'mixins/canvas.js', async: false, defer: true, path: '/js/'},
+    {name: 'components/auth.js', async: false, defer: true, path: '/js/'},
     {name: 'components/remote_video.js', async: false, defer: true, path: '/js/'},
     {name: 'animation.js', async: false, defer: true, path: '/js/'},
     {name: 'my_cropper.js', async: false, defer: true, path: '/js/'},
@@ -29,7 +29,7 @@ const scripts_room_dev = [
 
 const scripts_rooms_dev = [
     {name: 'constant.js', async: false, defer: true, path: '/js/'},
-    {name: 'custom_config.js', async: false, defer: true,path: '/js/'}, 
+    {name: 'components/auth.js', async: false, defer: true, path: '/js/'},
     {name: 'helpers/fetch.js', async: false, defer: true,path: '/js/'},
     {name: 'core/index.js', async: false, defer: true,path: '/js/'},
     {name: 'rooms/method.js ', async: false, defer: true,path: '/js/'},

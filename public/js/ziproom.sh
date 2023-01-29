@@ -1,6 +1,5 @@
 uglifyjs \
 constant.js \
-custom_config.js \
 room/data.js \
 room/method.js \
 core/index.js \
@@ -14,6 +13,7 @@ mixins/user.js \
 helpers/debounce.js \
 core/directive.js \
 mixins/canvas.js \
+components/auth.js \
 components/remote_video.js \
 animation.js \
 my_cropper.js \

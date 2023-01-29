@@ -54,13 +54,12 @@ socket.on('closesocketidset', () => {
 });
 
 socket.on('update_lessons', (payload) => {
-  // console.log(payload); to do
+
 });
 
 // Object.keys(window).forEach(key => {
 //     if (/^on/.test(key)) {
 //         localVideo.addEventListener(key.slice(2), event => {
-//             console.log('event');
 //             console.log(event);
 //         });
 //     }

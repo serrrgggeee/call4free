@@ -1,12 +1,12 @@
 html {
-  overflow: hidden;
+  /*overflow: hidden;*/
   height: 100%;
 }
 body {
   margin: 0;
   height: 100%;
   width: 100%;
-  position: fixed;
+  /*position: fixed;*/
   top: 0;
   left: 0;
   bottom: 0;
@@ -16,6 +16,11 @@ body {
 .active {
   background: #4285f4;
     color: white;
+}
+
+.articles {
+  overflow-y: scroll;
+  max-height: 1000px;
 }
 
 
@@ -35,6 +40,12 @@ button {
 button:focus {
     outline: -webkit-focus-ring-color auto 0px;
 }
+.button_lesson{
+  height: 30px;
+}
+.buttons_lessons {
+  width: 100%;
+}
 
 
 .container {
@@ -45,29 +56,9 @@ button:focus {
   display: flex;
 }
 
-
-.menu {
-  background-color: #e0e4e8;
+.lessons-wrapper {
+  grid-template-columns: 1fr;
 }
-
-.menu .container {
-  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
-  grid-template-rows: 36px;
-}
-
-.menu .video__wrapper {
-  position: relative;
-}
-
-.menu video {
-  max-height: 36px;
-  min-height: 29px;
-}
-
-.menu button {
-  height: 36px;
-}
-
 
 #canvas_wrapper {
   display: none;
@@ -204,11 +195,30 @@ button:focus {
   line-height: 20px;
 }
 
+.lessons_button {
+  position: relative;
+}
+
+.lessons_button span{
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: #fff;
+  border: 1px solid red;
+  height: 20px;
+  border-radius: 50%;
+  -moz-border-radius: 50%;
+  -webkit-border-radius: 50%;
+  width: 20px;
+  line-height: 20px;
+}
+
 
 .navigation-bar {
   position: fixed;
   bottom: 1%;
   padding: 0 5px;
+  z-index: 1;
 }
 
 .navigation-bar .go-rooms {
@@ -251,6 +261,7 @@ button:focus {
   transform: translate(-50%, -50%);
   width: 70%;
   height: 60%;
+  display: none;
 }
 
 .remoteVideos{
@@ -391,6 +402,51 @@ button:focus {
   cursor: pointer;
   z-index: 1000;
 
+}
+
+
+
+/*user*/
+#userImg {
+  width: 36px;
+  height: 36px;
+  margin-left: 5px;
+  float: left;
+}
+
+#userName {
+  margin: 0;
+  margin-left: 5px;
+
+  display: flex;
+  
+  align-items: center;
+
+  white-space: nowrap;
+  font-size: 16px;
+}
+
+.menu {
+  background-color: #e0e4e8;
+}
+
+.menu .container {
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+  grid-template-rows: 36px;
+}
+
+
+.menu .video__wrapper {
+  position: relative;
+}
+
+.menu video {
+  max-height: 36px;
+  min-height: 29px;
+}
+
+.menu button {
+  height: 36px;
 }
 
 .auth_ways {

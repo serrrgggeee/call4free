@@ -10,11 +10,6 @@
     <div class="image-list" id="image-list"></div>
 </section>
 
-<section>
-  <button m-click="getLesson(2)">Показать урок</button>
-  <div id="lessons-wrapper"></div>
-</section>
-
 <section class="handles-wrapper" id="chat-wrapper" style="display: none;">
     <div class="chat">
       <img m-click="hideChat" src="/img/ico/close.png" class="close">
@@ -29,6 +24,13 @@
       <button class="sendChatMessage" m-click="sendChatMessage">send</button>
 
     </div>
+</section>
+
+<section class="handles-wrapper lessons-wrapper" id="lessons-wrapper" style="display: none;">
+  <img m-click="hideLesson" src="/img/ico/close.png" class="close">
+  <div class="buttons_lessons" id="buttons_lessons">
+  </div>
+  <div id="lesson-wrapper"></div>
 </section>
 
 <section id="left_tabs_id" class="left_tabs" style="display: none">
@@ -53,7 +55,6 @@
 
 <nav id="navigation-bar" class="navigation-bar">
   <div id="conversation" class="container">
-    <a class="go-rooms" href="/">Go at rooms</a>
     <button m-click="switchOnVideo" id="switchOnVideo" class="switchOnVideo">video</button>
     <button m-click="switchOnAudio" id="switchOnAudio" class="switchOnAudio">audio</button>
     <button style="display: none;" id="left_tabs" href="#">Show share bar<span class="sr-only">(current)</span></button>
@@ -62,6 +63,7 @@
     </button>
     <button style="display: none;" title="change image size" id="changeImage">change</button>
     <button class="chat_button" id="chat_button" m-click="hideChat">chat</button>
+    <button class="lessons_button" id="lessons_button" m-click="hideLesson">lessons</button>
     <label style="display: none;" for="shareImage" title="upload image" class="canvas_button">Browse</label>
     <input style="display: none;" id="shareImage" type="file" accept="image/*" capture multiple="multiple" class="upload_input"> 
   </div>

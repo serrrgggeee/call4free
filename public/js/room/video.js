@@ -222,10 +222,6 @@ let video_functions = {
       socket.emit('setclosesocketid', id);
     }
   },
-  getLesson(e, id){
-    socket.emit('getLesson', id);
-  },  
-
   closesocketid_set() {
     socket.close();
     var win = window.open("about:blank", "_self");

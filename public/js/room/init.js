@@ -42,13 +42,6 @@ let init_functions = {
     }
   },
 
-  loadGoogleSrcipt() {
-    const newScript = document.createElement("script");
-    newScript.src = 'https://apis.google.com/js/platform.js';
-    newScript.async = true;
-    document.body.appendChild(newScript);
-  },
-
   initDjangoUser(token) {
       method.initDjangoUserMixin(token)
       .then(xhr => {
@@ -62,7 +55,7 @@ let init_functions = {
   },
 
   ready() {
-    init_functions.loadGoogleSrcipt();
+    method.loadGoogleSrcipt();
     const token_info = localStorage.getItem('token').split('---');
     const auth_method = token_info[0];
     const token = token_info[1];

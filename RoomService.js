@@ -140,8 +140,12 @@ async function listen(socket) {
       });
       socket.on('getLesson', function (id) {
         getLesson(id).then(({statusCode, body, headers}) => {
-          socket.emit('send_lesson', body);
+          io.emit('send_lesson', body);
+          io.emit('hide_lesson', true);
         })
+      });
+      socket.on('hideLesson', function () {
+        io.emit('hide_lesson');
       });
       socket.on('remoteVideo', function (message) {
       });
