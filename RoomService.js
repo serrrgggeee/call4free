@@ -147,6 +147,11 @@ async function listen(socket) {
       socket.on('hideLesson', function () {
         io.emit('hide_lesson');
       });
+
+      socket.on('setSelectionText', function (offset) {
+        io.emit('set_selection_text', offset);
+      });
+
       socket.on('remoteVideo', function (message) {
       });
       socket.on('sendChat', async function(payload) {

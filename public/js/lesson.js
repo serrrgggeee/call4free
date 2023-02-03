@@ -2,8 +2,10 @@ let lesson_functions = {
   lessons_id: [{pk: 1}, {pk: 2}, {pk: 3}, {pk: 4}, {pk: 5}],
   addLesson: lesson => {
     const res = `
+      <div class="articles" id="articles">
         <h2 class="header" id="lesson_header" data-id="${lesson.pk}">${lesson.title}</h2>
-        <div class="articles">${lesson_functions.articles(lesson.articles)}</div>
+        ${lesson_functions.articles(lesson.articles)}
+      </div>
     `
 
     const lesson_node = document.createElement('div');
@@ -23,11 +25,12 @@ let lesson_functions = {
       const id = lesson_articles[i].pk;
       articles += `
         <h3 class="article_header" id="article_header">${title}</h3>
-        <div class="text">${text}</div>
+        ${text}
       `
     }
     return articles;
   },
+
   hideLessonSocket: (open=false) => {
     let buttons = "";
     const lessonsWraper = document.getElementById("lessons-wrapper");
@@ -46,8 +49,69 @@ let lesson_functions = {
         buttons_lessons.innerHTML = "";
         buttons_lessons.innerHTML = buttons;
       });
+      const chapters = document.querySelectorAll('#lesson-wrapper p');
+      for (let i = 0; i < chapters.length; i++) {
+
+        chapters[i].addEventListener('mouseup', e => {
+          const target = e.target;
+          lesson_functions.setSelectionText(target);
+        })
+      }
     }
   },
+
+  setSelectionText: (target) => {
+    const offsets = lesson_functions.getSelectionTextOffset();
+    socket.emit('setSelectionText', offsets);
+  },
+
+  getSelectionTextOffset() {
+    const offset = {};
+    if (window.getSelection) {
+        const selection = window.getSelection();
+        const text = selection.toString();
+        const start_offset = selection.anchorOffset;
+        const end_offset = selection.focusOffset;
+        offset.start_offset = start_offset;
+        offset.end_offset = end_offset;
+    }
+    return offset;
+  },
+
+  getSelectionTextRoot(offset, target=null) {
+    const root = document.getElementById('articles');
+    const rng = document.createRange();
+    const start = root.getElementsByTagName('h2')[0].firstChild;
+    const end_index = root.getElementsByTagName('p').length - 1;
+    const end = root.getElementsByTagName('p')[0].firstChild;
+    const sel = window.getSelection();
+    rng.setStart(start, offset.start_offset);
+    rng.setEnd(end, offset.end_offset);
+    sel.removeAllRanges();
+    sel.addRange(rng);
+
+  },
+
+  // getElementsByText(str, tag = 'a') {
+  //   return Array.prototype.slice.call(document.getElementsByTagName(tag)).filter(el => el.textContent.trim() === str.trim());
+  // },
+
+  // let target = getElementsByText(text, 'h3')[0];
+  // selectText(text, target) {
+  //   var rng, sel;
+  //   if (document.createRange) {
+  //     rng = document.createRange();
+  //     rng.selectNode(target)
+  //     sel = window.getSelection();
+  //     sel.removeAllRanges();
+  //     sel.addRange(rng);
+  //   } else {
+  //     var rng = document.body.createTextRange();
+  //     rng.moveToElementText(target);
+  //     rng.select();
+  //   }
+  // },
+
   getUserLesons() {
     const auth_data = method.setAuthData();
     return fetch(
@@ -99,4 +163,8 @@ socket.on('send_lesson', (lesson) => {
 
 socket.on('hide_lesson', (open) => {
   method.hideLessonSocket(open);
+});
+
+socket.on('set_selection_text', (offset) => {
+  method.getSelectionTextRoot(offset);
 });
