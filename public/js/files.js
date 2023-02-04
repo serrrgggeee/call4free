@@ -5,6 +5,7 @@ const scripts_room_dev = [
     {name: 'core/index.js', async: false, defer: true, path: '/js/'}, 
     {name: 'mixins/date_mixins.js', async: false, defer: true, path: '/js/'}, 
     {name: 'socket_loader.js', async: false, defer: true, path: '/js/'}, 
+    {name: 'lesson.js', async: false, defer: true, path: '/js/'},
     {name: 'room/init.js', async: false, defer: true, path: '/js/'}, 
     {name: 'helpers/logger.js', async: false, defer: true, path: '/js/'},  
     {name: 'helpers/fetch.js', async: false, defer: true, path: '/js/'},  
@@ -23,7 +24,6 @@ const scripts_room_dev = [
     {name: 'room/video.js', async: false, defer: true, path: '/js/'},
     {name: 'core/events.js', async: false, defer: true, path: '/js/'},
     {name: 'chat.js', async: false, defer: true, path: '/js/'},
-    {name: 'lesson.js', async: false, defer: true, path: '/js/'},
     // {name: 'https://apis.google.com/js/platform.js', async: true, defer: false, path: ''},
 ]
 

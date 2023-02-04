@@ -5,6 +5,7 @@ room/method.js \
 core/index.js \
 mixins/date_mixins.js \
 socket_loader.js \
+lesson.js \
 room/init.js \
 helpers/logger.js \
 helpers/fetch.js \
@@ -23,7 +24,6 @@ core/p2p.js \
 room/video.js \
 core/events.js \
 chat.js \
-lesson.js \
  -o ziproom.js
 
 

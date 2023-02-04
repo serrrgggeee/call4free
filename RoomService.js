@@ -148,8 +148,8 @@ async function listen(socket) {
         io.emit('hide_lesson');
       });
 
-      socket.on('setSelectionText', function (offset) {
-        io.emit('set_selection_text', offset);
+      socket.on('setSelectionText', function (payload) {
+        io.emit('set_selection_text', payload);
       });
 
       socket.on('remoteVideo', function (message) {

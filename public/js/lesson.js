@@ -1,3 +1,7 @@
+var start_selection = null;
+var end_selection = null;
+const rng = document.createRange();
+
 let lesson_functions = {
   lessons_id: [{pk: 1}, {pk: 2}, {pk: 3}, {pk: 4}, {pk: 5}],
   addLesson: lesson => {
@@ -14,7 +18,7 @@ let lesson_functions = {
     const lessons = document.getElementById("lesson-wrapper");
     lessons.innerHTML = "";
     lessons.append(lesson_node);
-    return res; 
+    method.lessons_init();
   },
 
   articles(lesson_articles) {
@@ -49,20 +53,27 @@ let lesson_functions = {
         buttons_lessons.innerHTML = "";
         buttons_lessons.innerHTML = buttons;
       });
-      const chapters = document.querySelectorAll('#lesson-wrapper p');
-      for (let i = 0; i < chapters.length; i++) {
-
-        chapters[i].addEventListener('mouseup', e => {
-          const target = e.target;
-          lesson_functions.setSelectionText(target);
-        })
-      }
     }
   },
 
   setSelectionText: (target) => {
     const offsets = lesson_functions.getSelectionTextOffset();
-    socket.emit('setSelectionText', offsets);
+    const payload = offsets;
+    const lis = [...document.querySelectorAll('#articles p')];
+    const index = lis.indexOf(start_selection);
+    payload.start_selection = {
+      'localName': start_selection.localName,
+      'nodeType': start_selection.nodeType,
+      'childElementCount': start_selection.childElementCount,
+      index
+    };
+    payload.end_selection = {
+      'localName': end_selection.localName,
+      'nodeType': end_selection.nodeType,
+      'childElementCount': end_selection.childElementCount,
+      index
+    };
+    socket.emit('setSelectionText', payload);
   },
 
   getSelectionTextOffset() {
@@ -78,15 +89,20 @@ let lesson_functions = {
     return offset;
   },
 
-  getSelectionTextRoot(offset, target=null) {
+  getSelectionTextRoot(payload, target=null) {
     const root = document.getElementById('articles');
-    const rng = document.createRange();
-    const start = root.getElementsByTagName('h2')[0].firstChild;
-    const end_index = root.getElementsByTagName('p').length - 1;
-    const end = root.getElementsByTagName('p')[0].firstChild;
+    // const rng = document.createRange();
+    if(!payload.start_selection || !payload.end_selection) return;
+    // const start = root.getElementsByTagName('h2')[0].firstChild;
+    // const start = start_selection;
+    // const end_index = root.getElementsByTagName('p').length - 1;
+    // const end = root.getElementsByTagName('p')[0].firstChild;
+    // const end = end_selection.firstChild;
     const sel = window.getSelection();
-    rng.setStart(start, offset.start_offset);
-    rng.setEnd(end, offset.end_offset);
+    const start = root.getElementsByTagName(payload.start_selection.localName)[payload.start_selection.index].firstChild;
+    const end = root.getElementsByTagName(payload.end_selection.localName)[payload.end_selection.index].childNodes.item(4);
+    rng.setStart(start, payload.start_offset);
+    rng.setEnd(end, payload.end_offset);
     sel.removeAllRanges();
     sel.addRange(rng);
 
@@ -153,6 +169,18 @@ let lesson_functions = {
   hideLesson(e){
     socket.emit('hideLesson');
   },
+  lessons_init() {
+    const root = document.getElementById('articles');
+
+    root.addEventListener('mousedown', e => {
+      start_selection = e.target;
+    });
+
+    root.addEventListener('mouseup', e => {
+      end_selection = e.target;
+      lesson_functions.setSelectionText(e.target);
+    });
+  }
 
 };
 addMethods(method, lesson_functions);
@@ -168,3 +196,4 @@ socket.on('hide_lesson', (open) => {
 socket.on('set_selection_text', (offset) => {
   method.getSelectionTextRoot(offset);
 });
+
