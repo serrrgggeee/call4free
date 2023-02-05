@@ -1,5 +1,9 @@
 var start_selection = null;
+var start_selection_index = null;
 var end_selection = null;
+var end_selection_index = null;
+var start_selection_started = false;
+
 const rng = document.createRange();
 
 let lesson_functions = {
@@ -55,24 +59,29 @@ let lesson_functions = {
       });
     }
   },
+  getSelectionData: (selection, selection_index) => {
+    if(!selection)return; //|| !selection.hasOwnProperty('localName')
+    const localNames = ["h1", "h2", "h3", "p"];
+    if(!localNames.includes(selection.localName)) return;
+    const lis = [...document.querySelectorAll(`#articles ${selection.localName}`)];
+    const index = lis.indexOf(selection);
+    return selection = {
+      'localName': selection.localName,
+      'nodeType': selection.nodeType,
+      'childElementCount': selection.childElementCount,
+      index,
+      selection_index
+    };
+  },
 
   setSelectionText: (target) => {
     const offsets = lesson_functions.getSelectionTextOffset();
     const payload = offsets;
-    const lis = [...document.querySelectorAll('#articles p')];
-    const index = lis.indexOf(start_selection);
-    payload.start_selection = {
-      'localName': start_selection.localName,
-      'nodeType': start_selection.nodeType,
-      'childElementCount': start_selection.childElementCount,
-      index
-    };
-    payload.end_selection = {
-      'localName': end_selection.localName,
-      'nodeType': end_selection.nodeType,
-      'childElementCount': end_selection.childElementCount,
-      index
-    };
+    let lis = [...document.querySelectorAll(`#articles ${start_selection.localName}`)];
+    const start_index = lis.indexOf(start_selection);
+
+    payload.start_selection = lesson_functions.getSelectionData(start_selection, start_selection_index);
+    payload.end_selection =  lesson_functions.getSelectionData(end_selection, end_selection_index);
     socket.emit('setSelectionText', payload);
   },
 
@@ -91,42 +100,24 @@ let lesson_functions = {
 
   getSelectionTextRoot(payload, target=null) {
     const root = document.getElementById('articles');
-    // const rng = document.createRange();
     if(!payload.start_selection || !payload.end_selection) return;
-    // const start = root.getElementsByTagName('h2')[0].firstChild;
-    // const start = start_selection;
-    // const end_index = root.getElementsByTagName('p').length - 1;
-    // const end = root.getElementsByTagName('p')[0].firstChild;
-    // const end = end_selection.firstChild;
     const sel = window.getSelection();
-    const start = root.getElementsByTagName(payload.start_selection.localName)[payload.start_selection.index].firstChild;
-    const end = root.getElementsByTagName(payload.end_selection.localName)[payload.end_selection.index].childNodes.item(4);
+
+    const start = root.getElementsByTagName(
+      payload.start_selection.localName)[payload.start_selection.index].childNodes.item(payload.start_selection.selection_index
+    );
+
+    const end = root.getElementsByTagName(
+      payload.end_selection.localName)[payload.end_selection.index].childNodes.item(payload.end_selection.selection_index
+    );
+
+    if(!start || !end) return;
     rng.setStart(start, payload.start_offset);
     rng.setEnd(end, payload.end_offset);
     sel.removeAllRanges();
     sel.addRange(rng);
 
   },
-
-  // getElementsByText(str, tag = 'a') {
-  //   return Array.prototype.slice.call(document.getElementsByTagName(tag)).filter(el => el.textContent.trim() === str.trim());
-  // },
-
-  // let target = getElementsByText(text, 'h3')[0];
-  // selectText(text, target) {
-  //   var rng, sel;
-  //   if (document.createRange) {
-  //     rng = document.createRange();
-  //     rng.selectNode(target)
-  //     sel = window.getSelection();
-  //     sel.removeAllRanges();
-  //     sel.addRange(rng);
-  //   } else {
-  //     var rng = document.body.createTextRange();
-  //     rng.moveToElementText(target);
-  //     rng.select();
-  //   }
-  // },
 
   getUserLesons() {
     const auth_data = method.setAuthData();
@@ -169,15 +160,50 @@ let lesson_functions = {
   hideLesson(e){
     socket.emit('hideLesson');
   },
+  getSelectionIndex(e, container) {
+    const selObj = window.getSelection();
+    const range = selObj.getRangeAt(0);
+    if(!selObj.baseNode) return;
+    for (const i in e.target.childNodes) {
+      const element  = e.target.childNodes[i];
+      if(element.nodeType && element.textContent == range[container].data) {
+
+        switch(container) {
+          case 'endContainer':
+            end_selection_index = i;
+            return;
+
+          case 'startContainer':
+            start_selection_started = false;
+            start_selection_index = i;
+            return;
+        }
+      }
+
+    }
+  },
   lessons_init() {
     const root = document.getElementById('articles');
+    root.addEventListener("mousemove", e => {
+      if(start_selection_started) {
+        start_selection = e.target;
+        lesson_functions.getSelectionIndex(e, 'startContainer');
+      }
+    });
 
     root.addEventListener('mousedown', e => {
-      start_selection = e.target;
+      start_selection_started = true;
     });
 
     root.addEventListener('mouseup', e => {
       end_selection = e.target;
+      lesson_functions.getSelectionIndex(e, 'endContainer');
+      lesson_functions.setSelectionText(e.target);
+    });
+
+    root.addEventListener('touchend', e => {
+      end_selection = e.target;
+      lesson_functions.getSelectionIndex(e, 'endContainer');
       lesson_functions.setSelectionText(e.target);
     });
   }
