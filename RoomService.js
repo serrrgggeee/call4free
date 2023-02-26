@@ -141,15 +141,16 @@ async function listen(socket) {
       socket.on('getLesson', function (id) {
         getLesson(id).then(({statusCode, body, headers}) => {
           io.emit('send_lesson', body);
-          io.emit('hide_lesson', true);
+          io.emit('hide_lesson', {open: true});
         })
       });
-      socket.on('hideLesson', function () {
-        io.emit('hide_lesson');
+      socket.on('hideLesson', function (payload) {
+        io.emit('hide_lesson',  payload);
       });
 
       socket.on('setSelectionText', function (payload) {
-        io.emit('set_selection_text', payload);
+        // io.emit('set_selection_text', payload);
+        socket.broadcast.to(room).emit('set_selection_text', payload);
       });
 
       socket.on('remoteVideo', function (message) {

@@ -99,7 +99,6 @@ let user_functions = {
         const response = JSON.parse(xhr.response);
         sessionStorage.setItem('bearer_token', response['token']);
         method.showSignOutButton('djangoLogOut');
-        method.showOpenButton();
 
         const id = response.id;
         const name = response.username;
@@ -111,6 +110,7 @@ let user_functions = {
         localStorage.setItem('token', `initDjangoUser---${response.token.access_token}` );
 
         googleSignOut();
+        method.showOpenButton();
       });
     },
     getProfile(location) {

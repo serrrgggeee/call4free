@@ -1,14 +1,10 @@
-var start_selection = null;
-var start_selection_index = null;
-var end_selection = null;
-var end_selection_index = null;
-var start_selection_started = false;
-
-const rng = document.createRange();
-
 let lesson_functions = {
-  lessons_id: [{pk: 1}, {pk: 2}, {pk: 3}, {pk: 4}, {pk: 5}],
+  lessons_id: [],
+  lesson_id: null,
+  pageY: null,
+  x: null,
   addLesson: lesson => {
+    lesson_functions.lesson_id = lesson.pk;
     const res = `
       <div class="articles" id="articles">
         <h2 class="header" id="lesson_header" data-id="${lesson.pk}">${lesson.title}</h2>
@@ -39,13 +35,15 @@ let lesson_functions = {
     return articles;
   },
 
-  hideLessonSocket: (open=false) => {
+  hideLessonSocket: (payload) => {
+    open = payload.open? payload.open: false;
     let buttons = "";
     const lessonsWraper = document.getElementById("lessons-wrapper");
     lessonsWraper.style.display = lessonsWraper.style.display == "none" || open ? "grid": "none";
-    if(!lesson_functions.lessons_id.length == 0) {
+    if(lesson_functions.lessons_id.length == 0) {
       lesson_functions.getUserLesons().then(res=>{
         const data = JSON.parse(res.response);
+        lesson_functions.lessons_id = data;
         for (const i in data) {
           const id = data[i].pk;
           const title = data[i].title;
@@ -59,64 +57,32 @@ let lesson_functions = {
       });
     }
   },
-  getSelectionData: (selection, selection_index) => {
-    if(!selection)return; //|| !selection.hasOwnProperty('localName')
-    const localNames = ["h1", "h2", "h3", "p"];
-    if(!localNames.includes(selection.localName)) return;
-    const lis = [...document.querySelectorAll(`#articles ${selection.localName}`)];
-    const index = lis.indexOf(selection);
-    return selection = {
-      'localName': selection.localName,
-      'nodeType': selection.nodeType,
-      'childElementCount': selection.childElementCount,
-      index,
-      selection_index
-    };
-  },
 
   setSelectionText: (target) => {
-    const offsets = lesson_functions.getSelectionTextOffset();
-    const payload = offsets;
-    let lis = [...document.querySelectorAll(`#articles ${start_selection.localName}`)];
-    const start_index = lis.indexOf(start_selection);
-
-    payload.start_selection = lesson_functions.getSelectionData(start_selection, start_selection_index);
-    payload.end_selection =  lesson_functions.getSelectionData(end_selection, end_selection_index);
+    const payload = {};
+    const s = new XMLSerializer();
+    const root = document.getElementById('articles');
+    const str = s.serializeToString(root);
+    payload.root = str;
     socket.emit('setSelectionText', payload);
   },
 
-  getSelectionTextOffset() {
-    const offset = {};
-    if (window.getSelection) {
-        const selection = window.getSelection();
-        const text = selection.toString();
-        const start_offset = selection.anchorOffset;
-        const end_offset = selection.focusOffset;
-        offset.start_offset = start_offset;
-        offset.end_offset = end_offset;
+  triggerEvent(element) {
+    if (document.createEvent) {
+        const ev = document.createEvent('HTMLEvents');
+        ev.initEvent('contextmenu', true, false);
+        element.dispatchEvent(ev);
+    } else { // Internet Explorer
+        element.fireEvent('oncontextmenu');
     }
-    return offset;
   },
 
   getSelectionTextRoot(payload, target=null) {
     const root = document.getElementById('articles');
-    if(!payload.start_selection || !payload.end_selection) return;
-    const sel = window.getSelection();
-
-    const start = root.getElementsByTagName(
-      payload.start_selection.localName)[payload.start_selection.index].childNodes.item(payload.start_selection.selection_index
-    );
-
-    const end = root.getElementsByTagName(
-      payload.end_selection.localName)[payload.end_selection.index].childNodes.item(payload.end_selection.selection_index
-    );
-
-    if(!start || !end) return;
-    rng.setStart(start, payload.start_offset);
-    rng.setEnd(end, payload.end_offset);
-    sel.removeAllRanges();
-    sel.addRange(rng);
-
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(payload.root, "text/html");
+    const root_new = doc.getElementById("articles").outerHTML
+    root.innerHTML = root_new;
   },
 
   getUserLesons() {
@@ -147,8 +113,8 @@ let lesson_functions = {
     const lessons = document.getElementById("lesson-wrapper");
     if(lesson_header) {
       const lesson_id = lesson_header.getAttribute('data-id');
-      lessons.innerHTML = "";
-      if(lesson_id != lesson.pk) {
+      if(lesson_functions.lesson_id != lesson.pk) {
+        lessons.innerHTML = "";
         method.addLesson(lesson);
       }
     } else {
@@ -158,65 +124,240 @@ let lesson_functions = {
   },
 
   hideLesson(e){
-    socket.emit('hideLesson');
+    const lessonsWraper = document.getElementById("lessons-wrapper");
+    const open = lessonsWraper.style.display == "none" ? true: false;
+    socket.emit('hideLesson', {open});
   },
-  getSelectionIndex(e, container) {
+  htmlToElement(html) {
+    var template = document.createElement('template');
+    html = html.trim(); // Never return a text node of whitespace as the result
+    template.innerHTML = html;
+    return template.content.firstChild;
+  },
+
+  getTextNodesBetween(rootNode, startNode, endNode) {
+    var pastStartNode = false, reachedEndNode = false, textNodes = [];
+    function getTextNodes(node) {
+        if (node == startNode) {
+            pastStartNode = true;
+        } else if (node == endNode) {
+            reachedEndNode = true;
+        } else if (node.nodeType == 3) {
+            if (pastStartNode && !reachedEndNode && !/^\s*$/.test(node.nodeValue)) {
+                textNodes.push(node);
+            }
+        } else {
+            for (let i = 0, len = node.childNodes.length; !reachedEndNode && i < len; ++i) {
+                getTextNodes(node.childNodes[i]);
+            }
+        }
+    }
+    getTextNodes(rootNode);
+    return textNodes;
+  },
+
+  clearColor() {
+    const selected = document.getElementsByClassName("selected");
+    for (var i = 0;  i < selected.length; ++i) {
+      const element = selected[i];
+
+      try{
+        element.style.removeProperty("color");
+      }catch(e) {console.log(e);}
+
+    };
+  },
+
+  clearSelected() {
+    const selected = document.getElementsByClassName("selected");
+    for (var i = 0;  i < selected.length; ++i) {
+      const element = selected[i];
+      try{
+        element.classList.remove('selected');
+      }catch(e) {console.log(e);}
+
+    };
+  },
+  clearSelectedSpan() {
+    const selected = document.getElementsByClassName("selected");
+    for (var i = 0;  i < selected.length; ++i) {
+      const element = selected[i];
+      try{
+        // console.log(element.textContent); // TO DO
+        // console.log(element.parentElement);
+        // console.log(element.parentElement.textContent);
+      }catch(e) {console.log(e);}
+
+    };
+  },
+
+  getSelectionIndex(e) {
+    lesson_functions.clearColor();
+    lesson_functions.clearSelected();
+
     const selObj = window.getSelection();
     const range = selObj.getRangeAt(0);
-    if(!selObj.baseNode) return;
-    for (const i in e.target.childNodes) {
-      const element  = e.target.childNodes[i];
-      if(element.nodeType && element.textContent == range[container].data) {
 
-        switch(container) {
-          case 'endContainer':
-            end_selection_index = i;
-            return;
 
-          case 'startContainer':
-            start_selection_started = false;
-            start_selection_index = i;
-            return;
-        }
-      }
+    const startContainer = range.startContainer;
+    const startOffset = range.startOffset;
+    const endContainer = range.endContainer;
+    const endOffset = range.endOffset;
+
+    const root = document.getElementById('articles');
+    window.getSelection().empty();
+
+    const textContent = startContainer.textContent;
+    const textContentEnd = endContainer.textContent;
+
+    let wraped_text_start_first = lesson_functions.htmlToElement(textContent.substring(0, startOffset));
+    const space_before = textContent.substring(startOffset-1, startOffset) == ' ' ?' ': '';
+    const space_after = textContent.substring(endOffset, endOffset+1) == ' ' ?' ': '';
+    let spam_text = textContent.substring(startOffset);
+    if(startContainer == endContainer) {
+      spam_text = textContent.substring(startOffset, endOffset);
+    }
+
+    const wraped_text_start_span = lesson_functions.htmlToElement(
+      '<span class="start selected" style="color: red">' + space_before  + spam_text  + space_after +'</span>'
+    );
+    const wraped_text_start_second = lesson_functions.htmlToElement(textContent.substring(endOffset));
+
+    startContainer.textContent = '';
+
+    if(wraped_text_start_first != null) {
+      startContainer.parentElement.insertBefore(wraped_text_start_first, startContainer);
 
     }
+
+    startContainer.parentElement.insertBefore(wraped_text_start_span, startContainer);
+    if(wraped_text_start_second && startContainer == endContainer) {
+      startContainer.parentElement.insertBefore(wraped_text_start_second, startContainer);
+    }
+
+    if(wraped_text_start_first == null) {
+      wraped_text_start_first = textContent;
+    }
+
+    if(startContainer == endContainer) return;
+
+    const space_end_after = textContentEnd.substring(endOffset, endOffset+1) == ' ' ?' ': '';
+    const wraped_text_end_first = lesson_functions.htmlToElement(
+      '<span class="end selected" style="color: red">' + textContentEnd.substring(0, endOffset)  + space_end_after +'</span>');
+    let wraped_text_end_second = lesson_functions.htmlToElement(
+      textContentEnd.substring(endOffset)
+    );
+
+    endContainer.textContent = '';
+    endContainer.parentElement.insertBefore(wraped_text_end_first, endContainer);
+
+    if(wraped_text_end_second != null) {
+      endContainer.parentElement.insertBefore(wraped_text_end_second, endContainer);
+    }
+
+    const textNodes = lesson_functions.getTextNodesBetween(root, wraped_text_start_span, wraped_text_end_first);
+
+    for (var i = 0;  i < textNodes.length; ++i) {
+      const element = textNodes[i];
+      const container = lesson_functions.createText(element.textContent);
+      element.parentElement.insertBefore(container, element);
+      element.textContent = '';
+    };
+
+  },
+
+  createText(text){
+    const container = document.createElement("span");
+    const text_node = document.createTextNode(text);
+    container.appendChild(text_node);
+    container.style.color = "green";
+    container.classList.add("selected");
+    return container;
+  },
+
+  shareSelected(e) {
+    lesson_functions.getSelectionIndex(e);
+    lesson_functions.setSelectionText(e.target);
+    lesson_functions.hideSelectionMenu();
   },
   lessons_init() {
     const root = document.getElementById('articles');
-    root.addEventListener("mousemove", e => {
-      if(start_selection_started) {
-        start_selection = e.target;
-        lesson_functions.getSelectionIndex(e, 'startContainer');
+    root.addEventListener('mouseup', e => {
+      const text = window.getSelection().toString()
+      if(e.which == 1 && text.length > 0){
+        lesson_functions.rightClick(e);   
       }
     });
 
-    root.addEventListener('mousedown', e => {
-      start_selection_started = true;
-    });
+    document.oncontextmenu = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      lesson_functions.rightClick(e);
+    };
 
-    root.addEventListener('mouseup', e => {
-      end_selection = e.target;
-      lesson_functions.getSelectionIndex(e, 'endContainer');
-      lesson_functions.setSelectionText(e.target);
-    });
+    document.onselectionchange = (e) => {
+      lesson_functions.hideSelectionMenu();
+    };
 
-    root.addEventListener('touchend', e => {
-      end_selection = e.target;
-      lesson_functions.getSelectionIndex(e, 'endContainer');
-      lesson_functions.setSelectionText(e.target);
-    });
+    // document.onselectionstart = (e) => {
+    //   lesson_functions.hideSelectionMenu();
+    // };
+    // document.onselectionend = (e) => {
+    //   lesson_functions.hideSelectionMenu();
+    // };
+
+    document.addEventListener('mousemove', onMouseUpdate, false);
+    document.addEventListener('mouseenter', onMouseUpdate, false);
+        
+    function onMouseUpdate(e) {
+      lesson_functions.x = e.pageX;
+      lesson_functions.pageY = e.pageY;
+    }
+
+    // Object.keys(window).forEach(key => {
+    //     if (/^on/.test(key)) {
+    //         root.addEventListener(key.slice(2), event => {
+    //           if(event.type != 'devicemotion') {
+    //             console.log(event); 
+    //           }
+    //         });
+    //     }
+    // });
+  },
+
+  rightClick(e) {
+    const contextMenu = document.getElementById("contextMenu")
+              .style.display;
+    if (contextMenu == "none"){
+        const menu = document.getElementById("contextMenu")
+        menu.style.display = 'block';
+        const pageY = (typeof e.pageY !== "undefined" && e.pageY != undefined)? e.pageY: lesson_functions.pageY;
+        menu.style.left = e.pageX + "px";
+        menu.style.top = pageY -110 + "px";
+    }
+  },
+
+  // contextMenu(e) {
+  //   e.preventDefault();
+  //   e.stopPropagation();
+  // },
+
+  hideSelectionMenu() {
+      document.getElementById("contextMenu")
+              .style.display = "none"
   }
 
 };
+
 addMethods(method, lesson_functions);
 
+document.oncontextmenu = lesson_functions.contextMenu;
 socket.on('send_lesson', (lesson) => {
   method.recieveLesson(lesson);
 });
 
-socket.on('hide_lesson', (open) => {
-  method.hideLessonSocket(open);
+socket.on('hide_lesson', (payload) => {
+  method.hideLessonSocket(payload);
 });
 
 socket.on('set_selection_text', (offset) => {

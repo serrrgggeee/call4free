@@ -499,3 +499,25 @@ button:focus {
   width: 96px;
   height: 96px;
 }
+
+.context-menu {
+  display: block;
+  z-index: 10000;
+  position: absolute;
+  background: white;
+  padding: 10px;
+  border: 1px outset black;
+}
+
+.context-menu ul {
+  list-style-type: none;
+  padding: 1px 1px;
+  margin: 0px;
+}
+
+.context-menu a {
+      color: #000000;
+    text-decoration: none;
+    cursor: pointer;
+}
+
