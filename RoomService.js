@@ -99,6 +99,7 @@ async function listen(socket) {
               r["members"].push({'id': id, 'user_info': userInfo});
               socket.broadcast.emit('add_member', r, userInfo, id);
               socket.broadcast.to(room).emit('ready', socket.id, tracks_callback, remot_track_added, userInfo);
+              socket.emit('serverReady', 'enjoy the game')
             } else {
               writeLogger(`server_logs.txt`, {'type': 'closeclient', 'room':r, 'member_id': id}, true);
               io.to(socket_id).emit('closeclient', socket_id);

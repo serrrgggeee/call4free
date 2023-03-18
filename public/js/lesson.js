@@ -299,12 +299,6 @@ let lesson_functions = {
       lesson_functions.hideSelectionMenu();
     };
 
-    // document.onselectionstart = (e) => {
-    //   lesson_functions.hideSelectionMenu();
-    // };
-    // document.onselectionend = (e) => {
-    //   lesson_functions.hideSelectionMenu();
-    // };
 
     document.addEventListener('mousemove', onMouseUpdate, false);
     document.addEventListener('mouseenter', onMouseUpdate, false);
@@ -314,15 +308,6 @@ let lesson_functions = {
       lesson_functions.pageY = e.pageY;
     }
 
-    // Object.keys(window).forEach(key => {
-    //     if (/^on/.test(key)) {
-    //         root.addEventListener(key.slice(2), event => {
-    //           if(event.type != 'devicemotion') {
-    //             console.log(event); 
-    //           }
-    //         });
-    //     }
-    // });
   },
 
   rightClick(e) {

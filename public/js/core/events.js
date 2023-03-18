@@ -19,11 +19,17 @@ socket.on('ready', (id, tracks_callback, remot_track_added, userInfo) => {
 });
 
 
+socket.on('serverReady', function(id, candidate) {
+  method.serverReady();
+});
+
+
 socket.on('offer', (id, description, tracks_callback, remot_track_added, userInfo) =>{
   data.tracks_callback = tracks_callback;
   data.remot_track_added = remot_track_added;
   method.addUser(id, onOffer, description, userInfo);
 });
+
 
 
 socket.on('candidate', function(id, candidate) {
