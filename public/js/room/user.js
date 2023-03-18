@@ -1,5 +1,5 @@
 let video_user_functions = {
-  setUserInfoRoom() {
+  setDjangoUserInfoRoom() {
     if(userInfo) {
       method.setUserInfo('django');
       method.showOpenButton();

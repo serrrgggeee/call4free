@@ -32,10 +32,13 @@ let init_functions = {
   initDjangoUser(token) {
       method.initDjangoUserMixin(token)
       .then(xhr => {
-        method.setUserInfoRoom();
+        method.setDjangoUserInfoRoom();
       });
   },
 
+  initGoogleUser() {
+      method.showOpenButton();
+  },
   setMainVideo() {
     main_video =  document.getElementById('mainVideo');
     main_video['srcObject'] = new MediaStream();

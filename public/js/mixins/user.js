@@ -161,14 +161,6 @@ let user_functions = {
       document.body.appendChild(newScript);
     },
 
-    async initGoogleUser() {
-      var authInstance = await window.gapi.auth2.getAuthInstance();
-      var signedIn = authInstance.isSignedIn.get();
-      currentUser = authInstance.currentUser;
-      userInfo = currentUser.get().getBasicProfile();
-      method.setUserInfo('google');
-    },
-
     googleAuth(googleUser) {
       const auth_response = googleUser.getAuthResponse();
       const base_response = googleUser.getBasicProfile();
