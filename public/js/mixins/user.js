@@ -171,7 +171,6 @@ let user_functions = {
       googleData.then(function(res){
         const response = JSON.parse(res.response);
         localStorage.setItem('token', `initGoogleUser---${response.token.access_token}`);
-        method.testauth();
 
       })
       .catch(function(error){});
@@ -184,19 +183,7 @@ let user_functions = {
       const token = token_info[1];
       return {token, auth_method}
     },
-    testauth(e) {
-      const url = "https://video.chat.vokt.ru/comunicate/language/";
-      const auth_data = method.setAuthData();
-      if(!auth_data) return null;
-      fetch(url, 
-      {
-        options: {method: 'get'},
-        headers: {"Authorization": "Token " + auth_data.token},
-      })
-      .then(xhr => {
-        const response = JSON.parse(xhr.response);
-      });
-    },
+
     setUserInfo(auth_site) {
       if(!userInfo)return;
       userInfo["img"] = userInfo.getImageUrl();
@@ -208,6 +195,7 @@ let user_functions = {
       this.setUserParams();
       socket.emit('change_user', {userInfo, userInfoOld});
     },
+
     initDjangoUserMixin(token) {
       const url = "https://video.chat.vokt.ru/user_info/";
       const auth_data = method.setAuthData();

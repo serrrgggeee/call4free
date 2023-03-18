@@ -36,9 +36,6 @@ let init_functions = {
       });
   },
 
-  initGoogleUser() {
-      method.showOpenButton();
-  },
   setMainVideo() {
     main_video =  document.getElementById('mainVideo');
     main_video['srcObject'] = new MediaStream();
