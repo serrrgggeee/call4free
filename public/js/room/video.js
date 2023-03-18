@@ -215,6 +215,9 @@ let video_functions = {
   connect(){
     data.disconnected = false;
   },
+  serverReady() {
+    method.showBottomMenu();
+  },
 
   close_client(id) {
     logger(INFO, 'close_client', {id: socket.id});

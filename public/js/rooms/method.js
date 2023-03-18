@@ -54,6 +54,7 @@ const method = {
 
   connect(){
     data.disconnected = false;
+    console.log('conected');
   },
 
 
@@ -134,6 +135,7 @@ const method = {
 
   getLanguages() {
     const auth_data = method.setAuthData();
+    if(!auth_data) return null;
     let languagesData = fetch(
       'https://video.chat.vokt.ru/comunicate/language/',
       {
@@ -189,3 +191,8 @@ const method = {
     });
   },
 }
+
+document.addEventListener('filter_room_event', method.filterRooms, false);
+document.addEventListener('langages_event', method.getLanguages, false);
+document.addEventListener('categories_event', method.getCategories, false);
+

@@ -16,12 +16,15 @@ let init_functions = {
 
   ready() {
     method.loadGoogleSrcipt()
-    const token_info = localStorage.getItem('token').split('---');
-    const auth_method = token_info[0];
-    const token = token_info[1];
-    try {
-      init_functions[auth_method](token);
-    } catch (error) {}
+    const token_str = localStorage.getItem('token');
+    if(token_str) {
+      const token_info = token_str.split('---');
+      const auth_method = token_info[0];
+      const token = token_info[1];
+      try {
+        init_functions[auth_method](token);
+      } catch (error) {}
+    }
   }
 }
 addMethods(method, init_functions);
