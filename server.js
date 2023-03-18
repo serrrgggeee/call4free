@@ -19,7 +19,7 @@ if (credentials.key && credentials.cert) {
 const io = require('socket.io')(server);
 const RoomService = require('./RoomService')(io);
 app.use('/static', express.static(__dirname + '/public/img'));
-app.use(express.urlencoded());
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json()); 
 app.use('/', router);
 io.sockets.on('connection', RoomService.listen);

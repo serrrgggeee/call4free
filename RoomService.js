@@ -78,6 +78,7 @@ async function listen(socket) {
   socket.on('join', function(socket_id, room, userInfo) {
     let socketid = null;
     const [r, index] = getKeyByValue(rooms, 'name', room);
+    if(r == undefined) return;
     if(r !== undefined) {
       r['privet'] = false;
     };
@@ -98,6 +99,7 @@ async function listen(socket) {
               r["members"].push({'id': id, 'user_info': userInfo});
               socket.broadcast.emit('add_member', r, userInfo, id);
               socket.broadcast.to(room).emit('ready', socket.id, tracks_callback, remot_track_added, userInfo);
+              socket.emit('serverReady', 'enjoy the game')
             } else {
               writeLogger(`server_logs.txt`, {'type': 'closeclient', 'room':r, 'member_id': id}, true);
               io.to(socket_id).emit('closeclient', socket_id);
@@ -139,9 +141,19 @@ async function listen(socket) {
       });
       socket.on('getLesson', function (id) {
         getLesson(id).then(({statusCode, body, headers}) => {
-          socket.emit('send_lesson', body);
+          io.emit('send_lesson', body);
+          io.emit('hide_lesson', {open: true});
         })
       });
+      socket.on('hideLesson', function (payload) {
+        io.emit('hide_lesson',  payload);
+      });
+
+      socket.on('setSelectionText', function (payload) {
+        // io.emit('set_selection_text', payload);
+        socket.broadcast.to(room).emit('set_selection_text', payload);
+      });
+
       socket.on('remoteVideo', function (message) {
       });
       socket.on('sendChat', async function(payload) {
