@@ -29,7 +29,6 @@ const scripts_room_dev = [
 
 const scripts_rooms_dev = [
     {name: 'constant.js', async: false, defer: true, path: '/js/'},
-    {name: 'components/auth.js', async: false, defer: true, path: '/js/'},
     {name: 'helpers/fetch.js', async: false, defer: true,path: '/js/'},
     {name: 'core/index.js', async: false, defer: true,path: '/js/'},
     {name: 'rooms/method.js ', async: false, defer: true,path: '/js/'},
@@ -42,6 +41,7 @@ const scripts_rooms_dev = [
     {name: 'core/directive.js', async: false, defer: true,path: '/js/'},
     {name: 'rooms/rooms.js', async: false, defer: true,path: '/js/'},
     {name: 'rooms/init.js', async: false, defer: true,path: '/js/'},
+    {name: 'components/auth.js', async: false, defer: true, path: '/js/'},
     {name: 'loader.js', async: false, defer: true,path: '/js/'},
 
 ]
