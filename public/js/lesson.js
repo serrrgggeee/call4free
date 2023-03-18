@@ -336,20 +336,26 @@ let lesson_functions = {
               .style.display = "none"
   },
 
+  hideConversation() {
+    const conversation = document.getElementById("conversation");
+    conversation.style.display = "none";
+  },
+
+  showConversation() {
+    const conversation = document.getElementById("conversation");
+    conversation.style.display = "block";
+  },
+
   hideBottonMenu(e) {
     console.log(e);
     const hide_bottom_menu = document.getElementById("hide-bottom-menu");
-    const conversation = document.getElementById("conversation");
 
     if(hide_bottom_menu.classList.contains('shifted')) {
       hide_bottom_menu.classList.remove('shifted');
-      conversation.style.display = "none";
-      conversation.style.cursor = "pointer";
+      lesson_functions.hideConversation();
     } else {
       hide_bottom_menu.classList.add('shifted');
-      conversation.style.display = "block";
-      console.dir(conversation);
-      
+      lesson_functions.showConversation();
     }
   },
 
