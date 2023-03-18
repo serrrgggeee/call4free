@@ -19,4 +19,3 @@ window.onload = () => {
         document.body.appendChild(newScript);
     }
 }
-

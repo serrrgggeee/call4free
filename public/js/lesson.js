@@ -14,6 +14,7 @@ let lesson_functions = {
 
     const lesson_node = document.createElement('div');
     lesson_node.innerHTML = res;
+    
     lesson_node.classList.add('item');
     const lessons = document.getElementById("lesson-wrapper");
     lessons.innerHTML = "";
@@ -39,7 +40,7 @@ let lesson_functions = {
     open = payload.open? payload.open: false;
     let buttons = "";
     const lessonsWraper = document.getElementById("lessons-wrapper");
-    lessonsWraper.style.display = lessonsWraper.style.display == "none" || open ? "grid": "none";
+    lessonsWraper.style.display = lessonsWraper.style.display == "none" || open ? "block": "none";
     if(lesson_functions.lessons_id.length == 0) {
       lesson_functions.getUserLesons().then(res=>{
         const data = JSON.parse(res.response);
@@ -124,10 +125,12 @@ let lesson_functions = {
   },
 
   hideLesson(e){
+    console.log(e);
     const lessonsWraper = document.getElementById("lessons-wrapper");
     const open = lessonsWraper.style.display == "none" ? true: false;
     socket.emit('hideLesson', {open});
   },
+
   htmlToElement(html) {
     var template = document.createElement('template');
     html = html.trim(); // Never return a text node of whitespace as the result
@@ -290,8 +293,8 @@ let lesson_functions = {
     });
 
     document.oncontextmenu = (e) => {
-      e.preventDefault();
-      e.stopPropagation();
+      // e.preventDefault();
+      // e.stopPropagation();
       lesson_functions.rightClick(e);
     };
 
@@ -312,6 +315,7 @@ let lesson_functions = {
     function onMouseUpdate(e) {
       lesson_functions.x = e.pageX;
       lesson_functions.pageY = e.pageY;
+      console.log(e.pageX);
     }
 
     // Object.keys(window).forEach(key => {
@@ -337,15 +341,32 @@ let lesson_functions = {
     }
   },
 
-  // contextMenu(e) {
-  //   e.preventDefault();
-  //   e.stopPropagation();
-  // },
+  contextMenu(e) {
+    // e.preventDefault();
+    // e.stopPropagation();
+  },
 
   hideSelectionMenu() {
       document.getElementById("contextMenu")
               .style.display = "none"
-  }
+  },
+
+  hideBottonMenu(e) {
+    console.log(e);
+    const hide_bottom_menu = document.getElementById("hide-bottom-menu");
+    const conversation = document.getElementById("conversation");
+
+    if(hide_bottom_menu.classList.contains('shifted')) {
+      hide_bottom_menu.classList.remove('shifted');
+      conversation.style.display = "none";
+      conversation.style.cursor = "pointer";
+    } else {
+      hide_bottom_menu.classList.add('shifted');
+      conversation.style.display = "block";
+      console.dir(conversation);
+      
+    }
+  },
 
 };
 
@@ -363,4 +384,3 @@ socket.on('hide_lesson', (payload) => {
 socket.on('set_selection_text', (offset) => {
   method.getSelectionTextRoot(offset);
 });
-
