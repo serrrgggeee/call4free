@@ -57,7 +57,7 @@ let chat_functions = {
     const chatWraper = document.getElementById("chat-wrapper");
     chatWraper.style.display = chatWraper.style.display == "none" ? "flex": "none";
     method.checkReadMessage();
-  }, 
+  },
 
   checkReadMessage() {
     let retrievedObject = localStorage.getItem('chatCount');

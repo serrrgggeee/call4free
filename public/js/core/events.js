@@ -19,11 +19,17 @@ socket.on('ready', (id, tracks_callback, remot_track_added, userInfo) => {
 });
 
 
+socket.on('serverReady', function(id, candidate) {
+  method.serverReady();
+});
+
+
 socket.on('offer', (id, description, tracks_callback, remot_track_added, userInfo) =>{
   data.tracks_callback = tracks_callback;
   data.remot_track_added = remot_track_added;
   method.addUser(id, onOffer, description, userInfo);
 });
+
 
 
 socket.on('candidate', function(id, candidate) {
@@ -54,13 +60,12 @@ socket.on('closesocketidset', () => {
 });
 
 socket.on('update_lessons', (payload) => {
-  // console.log(payload); to do
+
 });
 
 // Object.keys(window).forEach(key => {
 //     if (/^on/.test(key)) {
 //         localVideo.addEventListener(key.slice(2), event => {
-//             console.log('event');
 //             console.log(event);
 //         });
 //     }

@@ -8,53 +8,13 @@
     <meta name="author" content="Sergei Nosachyev">
     <link href="/css/main.css" rel="stylesheet">
     <link href="/css/tabs/left_tab.css" rel="stylesheet">
-    <link href="/css/user.css" rel="stylesheet">
     <meta id="google-signin-client_id" name="google-signin-client_id" content="130656375808-ocv5rp7tuthr19s8d6vva9j2pp2m8dm8.apps.googleusercontent.com">
   </head>
   <body>
-    <nav id="authenticator" class="menu">
-      <div class="container">
-        <div class="row sign_out_row"></div>
-        <div class="row"> 
-          <img id="userImg" class="paa" alt="">
-          <h3 id="userName" class="ig"></h3>
-          <div id="google_login"></div>
-        </div>
-        <div class="video__wrapper">
-          <video class="localVideo" playsinline autoplay muted></video>
-        </div>
-      </div>
-    </nav>
-    <div class="auth_ways">
-      <div class="auth_way">
-        <div class="auth_by_google_account" class="row"> 
-          <div class="g-signin2" data-onsuccess="onSignIn" data-theme="dark"></div>
-        </div>
-      </div>
-      <div class="auth_way">
-        <div class="row" id="register_by_email">
-          <form m-submit="registration" id="registration" action="https://video.chat.vokt.ru/auth/registration/" method="POST">
-            <input type="text" m-change1="registerByEmail" name="email" placeholder="E-mail">
-            <input type="password" name="password1" placeholder="password1">
-            <input type="password" name="password2" placeholder="password2">
-            <button type="submit">Зарегистрироваться</button>
-          </form>
-      </div>
-      </div>
-      <div class="auth_way">
-        <div class="row" id="auth_by_email">
-          <form m-submit="login" id="registration" action="https://video.chat.vokt.ru/login" method="POST">
-            <input type="text" name="username" placeholder="username">
-            <input type="password" name="password" placeholder="password">
-            <button type="submit">Авторизоваться</button>
-          </form>
-        </div>
-      </div>
-      
-      
-    </div>
+    <auth-component></auth-component>
     <div id="room" room="/video.html"></div>
     <script src='/js/conf.js'></script>
+    <script src='/js/files.js'></script>
     <script src='/socket.io/socket.io.js'></script>
     <script src='/js/room/scripts.js'></script>
 

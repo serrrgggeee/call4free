@@ -8,26 +8,23 @@ let init_functions = {
         method.setUserInfo();
       });
   },
-  async initGoogleUser() {
-    var authInstance = await window.gapi.auth2.getAuthInstance();
-    var signedIn = authInstance.isSignedIn.get();
-    currentUser = authInstance.currentUser;
-    userInfo = currentUser.get().getBasicProfile();
-    method.setUserInfo('google');
-  },
-
+  
   setMainVideo() {
     main_video =  document.getElementById('mainVideo');
     main_video['srcObject'] = new MediaStream();
   },
 
   ready() {
-    const token_info = localStorage.getItem('token').split('---');
-    const auth_method = token_info[0];
-    const token = token_info[1];
-    try {
-      init_functions[auth_method](token);
-    } catch (error) {}
+    method.loadGoogleSrcipt()
+    const token_str = localStorage.getItem('token');
+    if(token_str) {
+      const token_info = token_str.split('---');
+      const auth_method = token_info[0];
+      const token = token_info[1];
+      try {
+        init_functions[auth_method](token);
+      } catch (error) {}
+    }
   }
 }
 addMethods(method, init_functions);

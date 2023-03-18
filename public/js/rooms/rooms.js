@@ -13,9 +13,6 @@ socket.on('add_member', function (room, userInfo, id)  {
   
 });
 
-const signin = document.getElementById("google-signin-client_id");
-signin.setAttribute("content", google_sighnin_id);
-
 method.getRoom();
 window.onunload = window.onbeforeunload = function() {
     socket.close();

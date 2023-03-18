@@ -12,23 +12,13 @@
     <title>Chats</title>
 
     <link href="/css/rooms.css" rel="stylesheet">
-    <link href="/css/user.css" rel="stylesheet">
+    <link href="/css/main.css" rel="stylesheet">
   </head>
 
   <body>
-    <nav class="navbar-default navbar-fixed-top menu">
-      <div class="container">
-        <div class="header">
-          <div class="g-signin2" data-onsuccess="onSignIn" data-theme="dark">
-          </div>
-          <img id="userImg" class="paa" alt="">
-          <h3 id="userName" class="ig"></h3>
-          <button m-click="googleAuth" id="google-login" class="btn btn-primary">Login with Google</button>
-        </div>
-      </div>
-    </nav>
+    <auth-component></auth-component>
     <section class="jumbotron">
-        <div class="container">
+        <div class="container rooms-handle">
             <div class="menu">
               <div class="title">
                 <h1>TALKING</h1>
@@ -50,7 +40,10 @@
                     <label for="exampleFormControlSelect1">Choose language</label>
                     <select class="form-control" id="languages"></select>
                   </div>
-                  <button m-click="createRoom" id="create-room" class="btn btn-primary">Create Room</button>
+                  <div></div>
+                  <div>
+                    <button m-click="createRoom" id="create-room" class="btn btn-primary rooms-handle-button">Create Room</button>
+                  </div>
                 </div>
 
               </div>
@@ -69,7 +62,10 @@
                     <select m-change="filterLanguage"  class="form-control" id="languages_filter"></select>
                   </div>
 
-                  <button m-click="clear" class="btn btn-primary">Clear</button>
+                  <div></div>
+                  <div>
+                    <button m-click="clear" class="btn btn-primary rooms-handle-button">Clear</button>
+                  </div>
                   
                 </div>
               </div>
@@ -96,8 +92,8 @@
     </footer>
     
     <script src='/js/conf.js'></script>
+    <script src='/js/files.js'></script>
     <script src='/socket.io/socket.io.js'></script>
     <script src='/js/rooms/scripts.js'></script>
-    <script src="https://apis.google.com/js/platform.js" async defer></script>
   </body>
 </html>

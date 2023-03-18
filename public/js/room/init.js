@@ -8,19 +8,6 @@ let init_functions = {
     room.appendChild(button);
   },
 
-  showSignOutButton(sign_out_method) {
-    const sign_out_row = document.querySelector('.sign_out_row');
-    let sign_out = document.querySelector('.sign_out');
-    if(sign_out == undefined || sign_out == null) {
-      sign_out = document.createElement("a");
-    }
-    sign_out.innerHTML = 'Sign out';
-    sign_out.setAttribute('href', '#');
-    sign_out.setAttribute('onclick', `${sign_out_method}()`);
-    sign_out.setAttribute('class', 'sign_out');
-    sign_out_row.appendChild(sign_out);
-  },
-
   includeHTML() {
     const el = document.getElementById("room");
     const file = el.getAttribute("room");
@@ -42,13 +29,6 @@ let init_functions = {
     }
   },
 
-  loadGoogleSrcipt() {
-    const newScript = document.createElement("script");
-    newScript.src = 'https://apis.google.com/js/platform.js';
-    newScript.async = true;
-    document.body.appendChild(newScript);
-  },
-
   initDjangoUser(token) {
       method.initDjangoUserMixin(token)
       .then(xhr => {
@@ -62,12 +42,11 @@ let init_functions = {
   },
 
   ready() {
-    init_functions.loadGoogleSrcipt();
-    const token_info = localStorage.getItem('token').split('---');
-    const auth_method = token_info[0];
-    const token = token_info[1];
+    method.loadGoogleSrcipt();
+    const auth_data = method.setAuthData();
+    if(!auth_data) return null
     try {
-      init_functions[auth_method](token);
+      init_functions[auth_data.auth_method](auth_data.token);
     } catch (error) {}
 
     data.canvas = document.getElementById('sharedImage');

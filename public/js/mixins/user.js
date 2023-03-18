@@ -25,18 +25,18 @@ function removeSignOutButton() {
   if(open_room){
     open_room.remove();
   }
-  const sign_out = document.querySelector('.sign_out')
-  if(sign_out) {
-    sign_out.remove()
-  }
+  // const sign_out = document.querySelector('.sign_out')
+  // if(sign_out) {
+  //   sign_out.remove()
+  // }
 }
 
 function djangoLogOut() {
   let regData = fetch('https://video.chat.vokt.ru/logout', {method: 'post'}).then(xhr => {
-        const response = JSON.parse(xhr.response);
-        removeSignOutButton();
-        sessionStorage.setItem('bearer_token', response['token']);
-      });
+    const response = JSON.parse(xhr.response);
+    removeSignOutButton();
+    sessionStorage.setItem('bearer_token', response['token']);
+  });
 }
 
 function getBasicProfileByEmail(props) {
@@ -98,8 +98,6 @@ let user_functions = {
       ).then(xhr => {
         const response = JSON.parse(xhr.response);
         sessionStorage.setItem('bearer_token', response['token']);
-        method.showSignOutButton('djangoLogOut');
-        method.showOpenButton();
 
         const id = response.id;
         const name = response.username;
@@ -111,7 +109,42 @@ let user_functions = {
         localStorage.setItem('token', `initDjangoUser---${response.token.access_token}` );
 
         googleSignOut();
+        method.showOpenButton();
+        method.showSignOutButton('djangoLogOut');
+        method.hideAuthenticationForm();
       });
+    },
+
+    hideAuthenticationForm() {
+      const auth_ways = document.getElementById("auth_ways");
+      auth_ways.style.display='none';
+    },
+    
+    showAuthenticationForm() {
+      const auth_ways = document.getElementById("auth_ways");
+      auth_ways.style.display='none';
+    },
+
+
+    showSignOutButton(sign_out_method) {
+      const sign_out_row = document.querySelector('.sign_out_row');
+      let sign_out = document.querySelector('.sign_out');
+      if(sign_out == undefined || sign_out == null) {
+        sign_out = document.createElement("a");
+      }
+      sign_out.innerHTML = 'Sign out';
+      sign_out.setAttribute('href', '#');
+      sign_out.setAttribute('onclick', `${sign_out_method}()`);
+      sign_out.setAttribute('class', 'sign_out');
+      sign_out_row.appendChild(sign_out);
+
+      const filter_room_event = new Event("init_filter_room");
+      const langages_event = new Event("init_filter_langages");
+      const categories_event = new Event("init_filter_categories");
+      document.dispatchEvent(filter_room_event);
+      document.dispatchEvent(langages_event);
+      document.dispatchEvent(categories_event);
+
     },
     getProfile(location) {
         let res = fetch(`https://video.chat.vokt.ru${location}`);
@@ -119,6 +152,23 @@ let user_functions = {
         }).catch(function(error){
       });
     },
+
+    loadGoogleSrcipt() {
+      const newScript = document.createElement("script");
+      newScript.src = 'https://apis.google.com/js/platform.js';
+      newScript.async = true;
+      newScript.defer = true;
+      document.body.appendChild(newScript);
+    },
+
+    async initGoogleUser() {
+      var authInstance = await window.gapi.auth2.getAuthInstance();
+      var signedIn = authInstance.isSignedIn.get();
+      currentUser = authInstance.currentUser;
+      userInfo = currentUser.get().getBasicProfile();
+      method.setUserInfo('google');
+    },
+
     googleAuth(googleUser) {
       const auth_response = googleUser.getAuthResponse();
       const base_response = googleUser.getBasicProfile();
@@ -135,7 +185,9 @@ let user_functions = {
       .catch(function(error){});
     },
     setAuthData() {
-      const token_info = localStorage.getItem('token').split('---');
+      const token_from_storage = localStorage.getItem('token');
+      if(!token_from_storage) return null;
+      const token_info = token_from_storage.split('---');
       const auth_method = token_info[0];
       const token = token_info[1];
       return {token, auth_method}
@@ -143,6 +195,7 @@ let user_functions = {
     testauth(e) {
       const url = "https://video.chat.vokt.ru/comunicate/language/";
       const auth_data = method.setAuthData();
+      if(!auth_data) return null;
       fetch(url, 
       {
         options: {method: 'get'},
@@ -188,5 +241,9 @@ let user_functions = {
           }
       });
     },
+    showBottomMenu() {
+      const navigation_bar = document.getElementById('navigation-bar');
+      navigation_bar.style.display = 'block';
+    }
 }
 addMethods(method, user_functions);

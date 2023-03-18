@@ -32,8 +32,8 @@ const method = {
 
   createRoom(){
     let room = this.makeid(10);
-    const subject = document.getElementById("new_subject")['value'];
-    const language = document.getElementById("languages")['value'];
+    const subject = document.getElementById("new_subject").selectedOptions[0].getAttribute('data-id');
+    const language = document.getElementById("languages").selectedOptions[0].getAttribute('data-id');
     const date_time = this.getDateTime();
     if(subject && language) {
       socket.emit('create_room', room, {subject, language, date_time}, userInfo);
@@ -54,6 +54,7 @@ const method = {
 
   connect(){
     data.disconnected = false;
+    console.log('conected');
   },
 
 
@@ -134,6 +135,7 @@ const method = {
 
   getLanguages() {
     const auth_data = method.setAuthData();
+    if(!auth_data) return null;
     let languagesData = fetch(
       'https://video.chat.vokt.ru/comunicate/language/',
       {
@@ -153,7 +155,7 @@ const method = {
       for (const i in languages) {
         const language = languages[i];
         data.languages += 
-          `<option value="${language.name}">${language.name}</option>`;
+          `<option data-id="${language.pk}" value="${language.name}">${language.name}</option>`;
       }
       document.getElementById("languages").innerHTML = data.languages;
       document.getElementById("languages_filter").innerHTML = data.languages;
@@ -178,7 +180,7 @@ const method = {
       for (const i in categories) {
         const subject = categories[i];
         data.categories += 
-          `<option value="${subject.name}"> ${subject.name} </option>`;
+          `<option data-id="${subject.pk}" value="${subject.name}"> ${subject.name} </option>`;
       }
       document.getElementById("new_subject").innerHTML = data.categories;
       document.getElementById("subject_filter").innerHTML = data.categories;
@@ -189,3 +191,8 @@ const method = {
     });
   },
 }
+
+document.addEventListener('filter_room_event', method.filterRooms, false);
+document.addEventListener('langages_event', method.getLanguages, false);
+document.addEventListener('categories_event', method.getCategories, false);
+
