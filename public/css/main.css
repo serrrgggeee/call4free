@@ -15,7 +15,7 @@ body {
 
 .active {
   background: #4285f4;
-    color: white;
+  color: white;
 }
 
 .articles {
@@ -240,10 +240,9 @@ button:focus {
 }
 
 .sticky {
-  top: 0;
   max-height: 100vh;
   position: fixed;
-  top: 93%
+  bottom: 1%;
 }
 
 input[type="submit"], button {
@@ -260,14 +259,7 @@ input[type="submit"], button {
   content: '\00BB';
   transform: rotate(270deg);
 }
-
-
-
-
 /*navigator end*/
-
-
-
 
 /*lessons*/
 
@@ -360,11 +352,6 @@ input[type="submit"], button {
   bottom:10px;
   cursor: pointer;
 }
-
-
-
-
-
 .resizer_wrapper {
 
   position: relative;
