@@ -12,6 +12,7 @@ helpers/logger.js \
 core/directive.js \
 rooms/rooms.js \
 rooms/init.js \
+components/authenticator.js \
 components/auth.js \
 loader.js \
 -o ziprooms.js

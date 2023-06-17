@@ -14,6 +14,7 @@ const scripts_room_dev = [
     {name: 'helpers/debounce.js', async: false, defer: true, path: '/js/'}, 
     {name: 'core/directive.js', async: false, defer: true, path: '/js/'},
     {name: 'mixins/canvas.js', async: false, defer: true, path: '/js/'},
+    {name: 'components/authenticator.js', async: false, defer: true, path: '/js/'},
     {name: 'components/auth.js', async: false, defer: true, path: '/js/'},
     {name: 'components/remote_video.js', async: false, defer: true, path: '/js/'},
     {name: 'animation.js', async: false, defer: true, path: '/js/'},
@@ -41,7 +42,10 @@ const scripts_rooms_dev = [
     {name: 'core/directive.js', async: false, defer: true,path: '/js/'},
     {name: 'rooms/rooms.js', async: false, defer: true,path: '/js/'},
     {name: 'rooms/init.js', async: false, defer: true,path: '/js/'},
+    {name: 'components/authenticator.js', async: false, defer: true, path: '/js/'},
     {name: 'components/auth.js', async: false, defer: true, path: '/js/'},
     {name: 'loader.js', async: false, defer: true,path: '/js/'},
+    {name: 'socket_loader.js', async: false, defer: true, path: '/js/'}, 
+    {name: 'core/events.js', async: false, defer: true, path: '/js/'},
 
 ]

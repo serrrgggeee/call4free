@@ -102,7 +102,7 @@ async function listen(socket) {
               socket.emit('serverReady', 'enjoy the game')
             } else {
               writeLogger(`server_logs.txt`, {'type': 'closeclient', 'room':r, 'member_id': id}, true);
-              io.to(socket_id).emit('closeclient', socket_id);
+              // io.to(socket_id).emit('closeclient', socket_id);
             }
           }catch(e){
             rooms[room] = {};
@@ -159,7 +159,16 @@ async function listen(socket) {
       socket.on('sendChat', async function(payload) {
         creatMessage(r, payload, io);
       });
-      socket.on('disconnect', function(info) {
+      socket.on('disconnect', disconect);
+      socket.on('login', ()=> {
+        console.log('-------logout------');
+        socket.broadcast.to(room).emit('login', {});
+      });
+      socket.join(room);
+    } else {
+      socket.emit('full', room);
+    }
+    function disconect(info) {
         socket.broadcast.to(room).emit('bye', socket.id);
         try {
           const index = r["members"].findIndex(member => {
@@ -167,21 +176,17 @@ async function listen(socket) {
           });
           const data = {info: info, id: socket.id, userInfo, socketid};
           writeLogger(`${INFO}.txt`, {type: ERROR, message: 'disconnect', data})
-          if(socketid == socket_id) return;
+          // if(socketid == socket_id) return;
           if(index > -1) {
             const user_id = r["members"][index].id;
             r["members"].splice(index, 1);
-            hideMember(user_id);
+            hideMember(user_id);;
           }
           socket.broadcast.emit('set_rooms', rooms);
 
         } catch(e) {
         }
-      });
-      socket.join(room);
-    } else {
-      socket.emit('full', room);
-    }
+      }
   });
 }
 

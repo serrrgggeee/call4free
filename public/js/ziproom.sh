@@ -14,6 +14,7 @@ mixins/user.js \
 helpers/debounce.js \
 core/directive.js \
 mixins/canvas.js \
+components/authenticator.js \
 components/auth.js \
 components/remote_video.js \
 animation.js \

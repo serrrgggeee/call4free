@@ -2,9 +2,14 @@ class Auth extends HTMLElement {
   connectedCallback() {
     const self = this;
     const auth_data = method.setAuthData();
-    let auth_ways = '';
-    if(!auth_data) {
-      auth_ways = `<div class="auth_ways" id="auth_ways">
+    // let auth_ways = '';
+    // if(!auth_data) {
+    const auth_ways = `<div class="auth_ways" id="auth_ways">
+        <div class="auth_way">
+          <div class="auth_by_google_account" class="row"> 
+            <div class="g-signin2" data-onsuccess="onSignIn" data-theme="dark"></div>
+          </div>
+        </div>
         <div class="auth_way">
           <div class="row" id="register_by_email">
             <form m-submit="registration" id="registration" action="https://video.chat.vokt.ru/auth/registration/" method="POST">
@@ -25,29 +30,17 @@ class Auth extends HTMLElement {
           </div>
         </div> 
       </div>`;
-    }else{
-      auth_ways = `<div class="auth_way" style="display: none;">
-          <div class="auth_by_google_account" class="row"> 
-            <div class="g-signin2" data-onsuccess="onSignIn" data-theme="dark"></div>
-          </div>
-        </div>`;
-    }
+    // }
+    // else{
+    //   auth_ways = `<div class="auth_way" style="display: none;">
+    //       <div class="auth_by_google_account" class="row"> 
+    //         <div class="g-signin2" data-onsuccess="onSignIn" data-theme="dark"></div>
+    //       </div>
+    //     </div>`;
+    // }
 
     this.innerHTML = 
-    `<nav id="authenticator" class="menu">
-      <div class="container">
-        <div class="row"><a class="go-rooms" href="/">Go at rooms</a></div>
-        <div class="row sign_out_row"></div>
-        <div class="row"> 
-          <img id="userImg" class="paa" alt="">
-          <h3 id="userName" class="ig"></h3>
-          <div id="google_login"></div>
-        </div>
-        <div class="video__wrapper">
-          <video class="localVideo" playsinline autoplay muted></video>
-        </div>
-      </div>
-    </nav>${auth_ways}`;
+    `${auth_ways}`;
   }
 
 
@@ -68,9 +61,6 @@ class Auth extends HTMLElement {
     }
   }
 
-  getImgShare () {
-    getSharedImage();
-  }
 }
 
 customElements.define('auth-component', Auth);
