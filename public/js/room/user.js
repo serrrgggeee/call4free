@@ -3,7 +3,7 @@ let video_user_functions = {
     if(userInfo) {
       method.setUserInfo('django');
       method.showOpenButton();
-      method.showSignOutButton('googleSignOut');
+      method.showSignOutButton('logOutMixin');
     }
   }
 }

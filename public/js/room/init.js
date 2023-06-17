@@ -11,6 +11,7 @@ let init_functions = {
   includeHTML() {
     const el = document.getElementById("room");
     const file = el.getAttribute("room");
+    console.log(file);
     if (file) {
       const xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
@@ -18,9 +19,10 @@ let init_functions = {
           if (this.status == 200) {
             el.innerHTML = this.responseText;
             method.userAuthenticated();
+            socket.emit('login', {});
           }
           if (this.status == 404) {el.innerHTML = "Page not found.";}
-          el.removeAttribute("room");
+          // el.removeAttribute("room");
         }
       }
       xhttp.open("GET", file, true);
@@ -33,6 +35,7 @@ let init_functions = {
       method.initDjangoUserMixin(token)
       .then(xhr => {
         method.setDjangoUserInfoRoom();
+        method.showOpenButton();
       });
   },
 
@@ -44,7 +47,10 @@ let init_functions = {
   ready() {
     method.loadGoogleSrcipt();
     const auth_data = method.setAuthData();
-    if(!auth_data) return null
+    if(!auth_data) {
+      user_functions.loadAuthComponent();
+      return null;
+    }
     try {
       init_functions[auth_data.auth_method](auth_data.token);
     } catch (error) {}

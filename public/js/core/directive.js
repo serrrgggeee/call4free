@@ -9,7 +9,9 @@ document.addEventListener('click', e => {
       args = res[1].split(")")[0].split(",");
     }
     method[m](e, args);
-  } catch(e) {}
+  } catch(e) {
+    console.log(e);
+  }
 });
 
 document.addEventListener('change', e => {
