@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    
+    <meta name="description" content="">
+    <meta name="author" content="Sergei Nosachyev">
+    <link rel="icon" href="/docs/4.1/assets/img/favicons/favicon.ico">
+    <title>Chats</title>
+
+    <link href="/css/rooms.css" rel="stylesheet">
+    <link href="/css/main.css" rel="stylesheet">
+  </head>
+
+  <body>
+    <section class="jumbotron">
+        <div class="container rooms-handle">
+            <div class="menu">
+              <div class="title">
+                <h1>TALKING</h1>
+              </div>
+
+              <create-room-component></create-room-component>
+              <filter-room-component></filter-room-component>
+            </div>
+            
+        </div>
+    </section>
+
+
+    <div class="container container-rooms">
+      <div id="rooms" class="rooms"></div>
+    </div>
+
+    <footer class="footer fixed-bottom">
+      <div class="link">
+        <span>science talk</span>
+      </div>
+      <div class="link">
+        <span>talking about science</span>
+      </div>
+      <div class="link">
+        <span>science</span>
+      </div>
+    </footer>
+    
+    <script src='/js/config.js'></script>
+    <script src='/js/files.js'></script>
+    <script src='/socket.io/socket.io.js'></script>
+    <script src='/js/rooms/scripts.js'></script>
+  </body>
+</html>

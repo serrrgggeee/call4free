@@ -4,6 +4,7 @@ package-lock.json
 .Trash-*
 rooms.json
 store_rooms.json
+package-lock.json
 
 node_modules/
 dist/
@@ -58,3 +59,8 @@ server_config.js
 nohup.out
 
 conf.js
+
+.env
+
+ziproom.js
+ziprooms.js

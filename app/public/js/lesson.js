@@ -87,12 +87,12 @@ let lesson_functions = {
   },
 
   getUserLesons() {
-    const auth_data = method.setAuthData();
+    const token = method.getToken();
     return fetch(
-      'https://video.chat.vokt.ru/lessons/lessons_user/',
+      `${BACKEND_URL}/lessons/lessons_user/`,
       {
         options: {method: 'get'},
-        headers: {"Authorization": "Token " + auth_data.token},
+        headers: {"Authorization": "Token " + token},
       }
     )
     .then(function(res){
@@ -125,7 +125,6 @@ let lesson_functions = {
   },
 
   hideLesson(e){
-    console.log(e);
     const lessonsWraper = document.getElementById("lessons-wrapper");
     const open = lessonsWraper.style.display == "none" ? true: false;
     socket.emit('hideLesson', {open});

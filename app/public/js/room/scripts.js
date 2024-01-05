@@ -1,11 +1,12 @@
 const scripts_prod = [
-    {name: 'ziprooms.js', async: false, defer: true,path: '/js/'},
+    {name: 'ziproom.js', async: false, defer: true,path: '/js/'},
 ]
+DEV=1
 let scripts;
 if (typeof DEV === 'undefined' || DEV === null) {
     scripts = scripts_prod;
 } else {
-    scripts = scripts_rooms_dev;
+    scripts = scripts_room_dev;
 }
 
 window.onload = () => {

@@ -136,8 +136,10 @@ const method = {
   getLanguages() {
     const auth_data = method.setAuthData();
     if(!auth_data) return null;
+    console.log("auth_data")
+    console.log(auth_data)
     let languagesData = fetch(
-      'https://video.chat.vokt.ru/comunicate/language/',
+      `${BACKEND_URL}/comunicate/language/`,
       {
         options: {method: 'get'},
         headers: {"Authorization": "Token " + auth_data.token},
@@ -167,9 +169,9 @@ const method = {
   },
 
   getCategories() {
-    let categoriesData = fetch('https://video.chat.vokt.ru/comunicate/subject/');
+    let categoriesData = fetch(`${BACKEND_URL}/comunicate/subject/`);
 
-
+    console.log("comunicate/subject/");
     categoriesData.then(function(res){
       if(data.categories.length > 0) {
         return data.categories;

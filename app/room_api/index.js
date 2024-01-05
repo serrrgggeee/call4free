@@ -102,6 +102,7 @@ var self = module.exports = {
 
   createMember: async(room, userInfo) => {
     let date = new Date().toLocaleString();
+    console.log(userInfo);
     return await queryParams(
       "INSERT INTO comunicate_member (room_id, login, auth_site, created, updated, user_info, active) \
       VALUES ($1, $2, $3, $4, $5, $6, $7)\

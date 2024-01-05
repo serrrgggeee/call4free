@@ -4,6 +4,12 @@ const { updateListLessons } = require("./rest/lessons");
 const express = require('express');
 const app = express();
 var router = express.Router();
+const cors = require('cors');
+
+let corsOptions = {
+    origin : ['http://127.0.0.1', 'http://127.0.0.1:3000'],
+}
+app.use(cors(corsOptions));
 
 let server;
 let port;

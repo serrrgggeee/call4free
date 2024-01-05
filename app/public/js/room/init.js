@@ -1,4 +1,4 @@
-let init_functions = {
+const init_room_functions = {
   showOpenButton() {
     const room = document.getElementById("room");
     const button = document.createElement("button");
@@ -11,7 +11,6 @@ let init_functions = {
   includeHTML() {
     const el = document.getElementById("room");
     const file = el.getAttribute("room");
-    console.log(file);
     if (file) {
       const xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
@@ -31,35 +30,23 @@ let init_functions = {
     }
   },
 
-  initDjangoUser(token) {
-      method.initDjangoUserMixin(token)
-      .then(xhr => {
-        method.setDjangoUserInfoRoom();
-        method.showOpenButton();
-      });
-  },
-
   setMainVideo() {
     main_video =  document.getElementById('mainVideo');
     main_video['srcObject'] = new MediaStream();
   },
 
   ready() {
-    method.loadGoogleSrcipt();
-    const auth_data = method.setAuthData();
-    if(!auth_data) {
-      user_functions.loadAuthComponent();
-      return null;
-    }
-    try {
-      init_functions[auth_data.auth_method](auth_data.token);
-    } catch (error) {}
-
+    const token = method.getToken();
+    method.getUserInfo(token)
+    .then(xhr => {
+      method.showOpenButton();
+      method.setUserInfo('google', JSON.parse(xhr.response));
+    });
     data.canvas = document.getElementById('sharedImage');
     // data.ctx = data.canvas.getContext('2d'); TO DO
   }
 }
-addMethods(method, init_functions);
+addMethods(method, init_room_functions);
 
 // socket.on('change_user_server',(message) =>{ TO DO
 //   console.log('change_user_server');

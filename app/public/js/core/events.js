@@ -47,7 +47,6 @@ socket.on('disconnect',function(){
 });
 
 socket.on('connect',function(){
-  console.log('conect');
   userInfo["socketId"] = socket.id;
   method.connect();
 });
@@ -66,7 +65,6 @@ socket.on('update_lessons', (payload) => {
 
 socket.on('login',function(){
   method.hideAuthenticationForm();
-  console.log('login');
 });
 
 // Object.keys(window).forEach(key => {

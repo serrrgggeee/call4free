@@ -1,13 +1,11 @@
 const scripts_prod = [
-    {name: 'ziproom.js', async: false, defer: true,path: '/js/'},
+    {name: 'ziprooms.js', async: false, defer: true,path: '/js/'},
 ]
-let scripts;
+DEV=1
+let scripts = scripts_rooms_dev;
 if (typeof DEV === 'undefined' || DEV === null) {
     scripts = scripts_prod;
-} else {
-    scripts = scripts_room_dev;
 }
-
 window.onload = () => {
     for (const [index, element] of scripts.entries()) {
         const newScript = document.createElement("script");

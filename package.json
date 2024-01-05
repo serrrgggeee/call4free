@@ -5,24 +5,24 @@
   "main": "server.js",
   "author": "serrrgggeee@gmail.com",
   "scripts": {
-    "start": "node server.js",
+    "start": "node app/server.js",
     "debug": "node --nolazy --inspect --debug-brk=5858 ./server.js"
   },
   "dependencies": {
     "ak-logger": "^1.1.2",
-    "body-parser": "^1.19.0",
+    "body-parser": "^1.20.2",
     "cors": "^2.8.5",
-    "curl-request": "^1.1.1",
-    "express": "^4.17.1",
-    "pg": "^8.6.0",
-    "pm2": "^3.5.1",
-    "socket.io": "^3.0.3"
+    "express": "^4.18.2",
+    "pg": "^8.11.3",
+    "pm2": "^5.3.0",
+    "socket.io": "^4.7.2",
+    "uglifyjs": "^2.4.11"
   },
   "license": "ISC",
   "devDependencies": {
-    "@types/node": "^8.0.10",
-    "@types/socket.io-client": "^1.4.29",
-    "@types/webrtc": "0.0.21",
-    "eslint": "^4.2.0"
+    "@types/node": "^20.9.0",
+    "@types/socket.io-client": "^3.0.0",
+    "@types/webrtc": "^0.0.40",
+    "eslint": "^8.53.0"
   }
 }

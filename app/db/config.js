@@ -1,9 +1,9 @@
 module.exports = {
   configDB: {
-    user: "serrrgggeee",
+    user: "video",
     host: "localhost",
-    database: "vokt",
+    database: "video",
     password: "Tktyf,firjdf1",
-    port: 5432
+    port: 5434
   }
 };

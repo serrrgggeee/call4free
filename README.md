@@ -1,3 +1,6 @@
+# installation
+	sudo npm install -g uglify-js
+
 # Video Chat
 
 [Demo](https://video.vokt.ru/room/1)
