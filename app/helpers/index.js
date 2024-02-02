@@ -1,5 +1,9 @@
 const fs = require('fs');
 
+const INFO = 'info';
+const WARNING = 'warning';
+const ERROR = 'error';
+
 module.exports = {
   getKeyByValue(array, key, value) {
     for (var i = 0; i < array.length; i++) {
@@ -10,13 +14,15 @@ module.exports = {
     return [];
   },
 
-  writeLogger(file, data, logging=false) {
+  writeLogger(file, data, logging=false, trace=null) {
     if(logging) {
       const date = new Date().toLocaleString();
-      fs.writeFile(file, date + ' ----- ' + JSON.stringify(data) + '\n', { flag: 'a+' }, (err) => {
+      const stack = trace?trace:new Error().stack
+      fs.writeFile(file, date + "\n" +'trace: ' + JSON.stringify(stack) + "\n" + JSON.stringify(data) + "\n", { flag: 'a+' }, (err) => {
          if (err) throw err;
      });
 
     }
-  }
+  },
+  INFO, WARNING, ERROR
 }

@@ -1,23 +1,26 @@
 /** @type {SocketIO.Server} */
-const INFO = 'info';
-const WARNING = 'warning';
-const ERROR = 'error';
 const SDP = 'sdp';
 const ICE = 'ice';
 const fs = require('fs');
 const { getOrCreateRoom, creatMessage, getMessges, getRooms, 
-  closeRoom, getOrCreateMember, hideMember, clearRooms } = require("./room_api");
+  closeRoom, getOrCreateMember, hideMember } = require("./room_api");
 
 const { getLesson } = require("./lesson_api");
-const { getKeyByValue, writeLogger } = require("./helpers");
+const { getKeyByValue, writeLogger, INFO, ERROR} = require("./helpers");
 let _io;
 const MAX_CLIENTS = 3;
 let chat_opend = false;
 let rooms = [];
-clearRooms();
-getRooms().then((res)=> {
-  rooms = res.rows;
-});
+
+function get_rooms() {
+  getRooms().then((res)=> {
+    rooms = res.data
+  });
+  
+}
+
+get_rooms();
+// clearRooms();
 
 /** @param {SocketIO.Socket} socket */
 async function listen(socket) {
@@ -30,8 +33,8 @@ async function listen(socket) {
     chat_opend = value;
   });
 
-  socket.on('logging', (type, message, value) => {
-    writeLogger(`${type}.txt`, {type, message, value}, true)
+  socket.on('logging', (type, message, value, trace) => {
+    writeLogger(`${type}.txt`, {type, message, value}, true, trace)
   });
 
   socket.on('senAdminChat', async function(payload) {
@@ -71,54 +74,47 @@ async function listen(socket) {
       socket.broadcast.to(room).emit('swithOnRemoteVideo');
   })
 
-  socket.on('change_user', async function(payload) {
-    socket.broadcast.emit('change_user_server', payload);
-  });
-
+  // сначала join а потом что бы проинициализировать все события, до это они не доступны
   socket.on('join', function(socket_id, room, userInfo) {
     let socketid = null;
-    const [r, index] = getKeyByValue(rooms, 'name', room);
-    if(r == undefined) return;
-    if(r !== undefined) {
-      r['privet'] = false;
-    };
+  
     let numClients = 0;
-    let member_exist = false;
+    let is_in_room = false;
+
     if (numClients < MAX_CLIENTS) {
       socket.on('ready', function(userInfo, tracks_callback, remot_track_added) {
-        getOrCreateMember(r, userInfo).then(result => {
-          const {res, created} = result;
-          try{
-            if(!r["members"]) {
-              r["members"] = [];
-            }
-            writeLogger("server_logs.txt", {'type': 'members', 'room':r, 'members': r["members"]}, true);
-            const id = res.rows? res.rows[0].id: res[0].id; 
-            const [m, index] = getKeyByValue(r["members"], 'id', id);
-            if(index === undefined) {
-              r["members"].push({'id': id, 'user_info': userInfo});
-              socket.broadcast.emit('add_member', r, userInfo, id);
-              socket.broadcast.to(room).emit('ready', socket.id, tracks_callback, remot_track_added, userInfo);
-              socket.emit('serverReady', 'enjoy the game')
-            } else {
-              writeLogger(`server_logs.txt`, {'type': 'closeclient', 'room':r, 'member_id': id}, true);
-              // io.to(socket_id).emit('closeclient', socket_id);
-            }
-          }catch(e){
-            rooms[room] = {};
+        getOrCreateMember(room, userInfo).then(result => {
+          const data = result.data;
+          if('errors' in data) {
+            socket.emit('serverNotReady', data['errors'])
+            return
+          }
+
+          writeLogger("server_logs.txt", {'type': 'members', 'room':room, 'members': room["members"]}, true);
+
+          is_in_room = data.is_in_room;
+          if(data.is_in_room == false) {
+
+            // socket.broadcast.emit('add_member', data['room'], data['user_info'], data['pk']);
+            getRooms().then((res)=> {
+              rooms = res.data
+              socket.broadcast.emit('set_rooms', rooms);
+            });
+            socket.broadcast.to(room).emit('ready', socket.id, tracks_callback, remot_track_added, userInfo);
+            socket.emit('serverReady', 'enjoy the game')
+          } else {
+            const payload = {'info': 'максимальное количество возможных подключений'};
+            writeLogger(`server_logs.txt`, {'type': 'serverNotReady', 'room':room, 'member_id': data['pk'], 'info':  payload}, true);
+
+            socket.emit('serverNotReady', payload)
           }
         });
       });
 
       socket.on('openChat', async() => {
-        const res = await getMessges(r.id);
-        rooms[index].chat = res.rows;
+        const res = await getMessges(333);
+        room.chat = res.rows;
         await socket.emit('initChatMessages', res['rows']);
-      });
-
-      socket.on('setclosesocketid', value => {
-        socketid = value;
-        io.to(socket_id).emit('closesocketidset');
       });
 
       socket.on('share_audio', function(tracks_callback, remot_track_added) {
@@ -136,9 +132,9 @@ async function listen(socket) {
       socket.on('answer', function (id, message) {
         socket.to(id).emit('answer', socket.id, message);
       });
-      socket.on('candidate', function (id, message) {
-        socket.to(id).emit('candidate', socket.id, message);
-      });
+      // socket.on('candidate', function (id, message) {
+      //   socket.to(id).emit('candidate', socket.id, message);
+      // });
       socket.on('getLesson', function (id) {
         getLesson(id).then(({statusCode, body, headers}) => {
           io.emit('send_lesson', body);
@@ -157,11 +153,10 @@ async function listen(socket) {
       socket.on('remoteVideo', function (message) {
       });
       socket.on('sendChat', async function(payload) {
-        creatMessage(r, payload, io);
+        creatMessage(room, payload, io);
       });
       socket.on('disconnect', disconect);
       socket.on('login', ()=> {
-        console.log('-------logout------');
         socket.broadcast.to(room).emit('login', {});
       });
       socket.join(room);
@@ -169,20 +164,21 @@ async function listen(socket) {
       socket.emit('full', room);
     }
     function disconect(info) {
+        if(is_in_room == true) return;
         socket.broadcast.to(room).emit('bye', socket.id);
         try {
-          const index = r["members"].findIndex(member => {
-            return member.user_info.email == userInfo.email &&  member.user_info.name == userInfo.name;
-          });
+          
           const data = {info: info, id: socket.id, userInfo, socketid};
           writeLogger(`${INFO}.txt`, {type: ERROR, message: 'disconnect', data})
-          // if(socketid == socket_id) return;
-          if(index > -1) {
-            const user_id = r["members"][index].id;
-            r["members"].splice(index, 1);
-            hideMember(user_id);;
-          }
-          socket.broadcast.emit('set_rooms', rooms);
+          hideMember(room, userInfo).then((res)=>{
+            // hideMember(user_id);
+            getRooms().then((res)=> {
+              rooms = res.data
+              socket.broadcast.emit('set_rooms', rooms);
+  
+            });
+            
+          });
 
         } catch(e) {
         }
