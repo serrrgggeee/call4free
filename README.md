@@ -3,7 +3,7 @@
 
 # Video Chat
 
-[Demo](https://video.vokt.ru/room/1)
+[Demo](https://call4free.ru/room/1)
 
 #client
 	animation.js - все что связанно с динамикой, например при наведении изменяется размер видио изображения

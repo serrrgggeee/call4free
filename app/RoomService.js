@@ -1,20 +1,18 @@
 /** @type {SocketIO.Server} */
-const SDP = 'sdp';
-const ICE = 'ice';
+const { MAX_CLIENTS } = require('./config');
 const fs = require('fs');
-const { getOrCreateRoom, creatMessage, getMessges, getRooms, 
-  closeRoom, getMember, createMember, hideMember, clearRooms} = require("./room_api");
-
-const { getLesson } = require("./lesson_api");
 const { getKeyByValue, writeLogger, INFO, ERROR} = require("./helpers");
+const { getLesson } = require("./lesson_api");
+const { getOrCreateRoom, creatMessage, getMessges, getRooms, 
+  closeRoom, getMember, createMember, hideMember} = require("./room_api");
+
+
+
 let _io;
-const MAX_CLIENTS = 3;
-let chat_opend = false;
 let rooms = [];
 const user_in_rooms = {};
 
 
-// clearRooms().then(res=>{});
 getRooms().then((res)=>   {
     rooms = res.data
 });
@@ -98,8 +96,6 @@ async function listen(socket) {
 
       function check_user_in_room(room, user_id) {
         try {
-          console.log(user_in_rooms[room]);
-          console.log(user_id);
           return user_in_rooms[room].includes(user_id)
         } catch (e) {
           user_in_rooms[room] = [];
@@ -112,8 +108,6 @@ async function listen(socket) {
       }
 
       function remove_user_from_room_by_index(room, user_index) {
-        console.log(user_in_rooms[room]);
-        console.log(user_index);
         user_in_rooms[room].splice(user_index, 1)
       }
       function create_member(tracks_callback, remot_track_added) {
@@ -149,7 +143,6 @@ async function listen(socket) {
           socket.emit('serverReady', 'enjoy the game')
         } else {
           const payload = {'info': 'максимальное количество возможных подключений'};
-          console.log(payload);
           writeLogger(`server_logs.txt`, {'type': 'serverNotReady', 'room':room, 'member_id': data['pk'], 'info':  payload}, true);
           socket.emit('serverNotReady', payload)
         }
@@ -176,12 +169,8 @@ async function listen(socket) {
       socket.on('answer', function (id, message) {
         socket.to(id).emit('answer', socket.id, message);
       });
-      // socket.on('candidate', function (id, message) {
-      //   socket.to(id).emit('candidate', socket.id, message);
-      // });
       socket.on('getLesson', function (id) {
         getLesson(id).then((res) => {
-          console.log(res);
           const lesson = res.data;
           if(res.code == 'ERR_BAD_REQUEST') {
             io.emit('send_lesson', null);
@@ -197,7 +186,6 @@ async function listen(socket) {
       });
 
       socket.on('setSelectionText', function (payload) {
-        // io.emit('set_selection_text', payload);
         socket.broadcast.to(room).emit('set_selection_text', payload);
       });
 
@@ -215,7 +203,6 @@ async function listen(socket) {
       socket.emit('full', room);
     }
     function disconect(info) {
-        // if(is_in_room == true) return;
         socket.broadcast.to(room).emit('bye', socket.id);
         try {
           const data = {info: info, id: socket.id, userInfo, socketid};
@@ -247,19 +234,3 @@ module.exports = function(io) {
 };
 
 
-
-
-// socket.emit('message', "this is a test"); //sending to sender-client only
-// socket.broadcast.emit('message', "this is a test"); //sending to all clients except sender
-// socket.broadcast.to('game').emit('message', 'nice game'); //sending to all clients in 'game' room(channel) except sender
-// socket.to('game').emit('message', 'enjoy the game'); //sending to sender client, only if they are in 'game' room(channel)
-// socket.broadcast.to(socketid).emit('message', 'for your eyes only'); //sending to individual socketid
-// io.emit('message', "this is a test"); //sending to all clients, include sender
-// io.in('game').emit('message', 'cool game'); //sending to all clients in 'game' room(channel), include sender
-// io.of('myNamespace').emit('message', 'gg'); //sending to all clients in namespace 'myNamespace', include sender
-// socket.emit(); //send to all connected clients
-// socket.broadcast.emit(); //send to all connected clients except the one that sent the message
-// socket.on(); //event listener, can be called on client to execute on server
-// io.sockets.socket(); //for emiting to specific clients
-// io.sockets.emit(); //send to all connected clients (same as socket.emit)
-// io.sockets.on() ; //initial connection from a client.

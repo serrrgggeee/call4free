@@ -1,10 +1,11 @@
 const axios = require('axios');
 const {writeLogger, ERROR} = require(".");
+const {BACKEND_TOKEN} = require('../config');
 
 
 module.exports = {
     fetch: async (url, type = 'get', data=null, config = {}) => {
-        config['headers'] = {"Authorization": process.env.BACKEND_TOKEN};
+        config['headers'] = {"Authorization": BACKEND_TOKEN};
         let request;
         if(data) {
             request = axios[type](url, data, config)

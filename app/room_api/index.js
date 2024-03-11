@@ -1,50 +1,51 @@
+const { DOMAIN } = require('../config');
 const {fetch} = require("../helpers/fetch");
 
 const self = module.exports = {
   closeRoom: async(id) => {
-    const url = `${process.env.DOMAIN}/communicate/room/${id}/update/`;
+    const url = `${DOMAIN}/communicate/room/${id}/update/`;
     return fetch(url, 'put', {active: false});
   },
 
   getRooms: async() => {
-      const url = `${process.env.DOMAIN}/communicate/rooms/`;
+      const url = `${DOMAIN}/communicate/rooms/`;
       return fetch(url);
   },
 
   clearRooms: async(room, userInfo) => {
-    const url = `${process.env.DOMAIN}/communicate/rooms/`;
+    const url = `${DOMAIN}/communicate/rooms/`;
     return fetch(url, 'post', {active: false});
   },
 
   getMessges: async(room_id) => {
-    const url = `${process.env.DOMAIN}/communicate/messages/${room_id}`;
+    const url = `${DOMAIN}/communicate/messages/${room_id}`;
     return fetch(url);
   },
 
   creatMessage: async(room, data, io) => {
-    const url = `${process.env.DOMAIN}/communicate/message/`;
+    const url = `${DOMAIN}/communicate/message/`;
     return fetch(url, 'post', data);
   },
 
   getOrCreateRoom: async(data) => {
-    const url = `${process.env.DOMAIN}/communicate/room/`;
+    const url = `${DOMAIN}/communicate/room/`;
     return fetch(url, 'post', data);
   },
 
   getMember: async(room, userInfo) => {
-    const url = `${process.env.DOMAIN}/communicate/member/${room}/${userInfo['pk']}`;
+    const url = `${DOMAIN}/communicate/member/${room}/${userInfo['pk']}`;
     const user_info = JSON.stringify(userInfo);
     return fetch(url);
   },
 
   createMember: async(room, userInfo) => {
-    const url = `${process.env.DOMAIN}/communicate/member/`;
+    const url = `${DOMAIN}/communicate/member/`;
     const data = {social_account: userInfo['pk'], room_name: room, active: true}
     return fetch(url, 'post', data);
   },
 
   hideMember: async(room, userInfo) => {
-    const url = `${process.env.DOMAIN}/communicate/member/`;
+    const url = `${DOMAIN}/communicate/member/`;
     const user_info = JSON.stringify(userInfo);
     const data = {user_info, active: false}
     return fetch(url, 'put', data);
