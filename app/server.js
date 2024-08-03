@@ -5,7 +5,7 @@ const io = require('socket.io')({
       methods: ["GET", "POST"]
     }
 });
-const RoomService = require('./RoomService')(io);
+const RoomService = require('./RoomService')(io, { origins: '*:*'});
 io.listen(PORT);
 io.sockets.on('connection', RoomService.listen);
 io.sockets.on('error', e => console.log(e));

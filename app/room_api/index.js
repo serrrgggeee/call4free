@@ -27,9 +27,14 @@ const self = module.exports = {
     return fetch(url, 'post', data);
   },
 
-  getOrCreateRoom: async(data) => {
+  createRoom: async(data) => {
     const url = `${DOMAIN}/communicate/room/`;
     return fetch(url, 'post', data);
+  },
+
+  getRoom: async(id) => {
+    const url = `${DOMAIN}/communicate/room/${id}/get/`;
+    return fetch(url, 'get');
   },
 
   getMember: async(room, userInfo) => {
@@ -47,7 +52,7 @@ const self = module.exports = {
   hideMember: async(room, userInfo) => {
     const url = `${DOMAIN}/communicate/member/`;
     const user_info = JSON.stringify(userInfo);
-    const data = {user_info, active: false}
+    const data = {user_info, active: false, room}
     return fetch(url, 'put', data);
   }
 };

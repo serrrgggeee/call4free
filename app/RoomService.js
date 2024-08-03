@@ -3,7 +3,7 @@ const { MAX_CLIENTS } = require('./config');
 const fs = require('fs');
 const { getKeyByValue, writeLogger, INFO, ERROR} = require("./helpers");
 const { getLesson } = require("./lesson_api");
-const { getOrCreateRoom, creatMessage, getMessges, getRooms, 
+const { createRoom, getRoom, creatMessage, getMessges, getRooms, 
   closeRoom, getMember, createMember, hideMember} = require("./room_api");
 
 
@@ -19,6 +19,11 @@ getRooms().then((res)=>   {
 
 /** @param {SocketIO.Socket} socket */
 async function listen(socket) {
+  if(typeof rooms == 'undefined') {
+    getRooms().then((res)=>   {
+      rooms = res.data
+    });
+  }
   const io = _io;
   socket.on('get_rooms', function() {
     socket.emit('set_rooms', rooms);
@@ -36,6 +41,11 @@ async function listen(socket) {
     const [room, index] = getKeyByValue(rooms, 'name', payload.room);
     creatMessage({name: payload.room}, payload, io);
  });
+
+ socket.on('sendAdminRoom', async function(payload) {
+    console.log(payload)
+    socket.disconnect();
+});
  
   socket.on('updateAdminLesson', async function(payload) {
     io.sockets.emit("update_lessons", payload);
@@ -47,19 +57,24 @@ async function listen(socket) {
 
   socket.on('create_room', async (room, data, userInfo) => {
     data['name'] = room
-    getOrCreateRoom(data)
+    createRoom(data)
     .then(r => 
     {
-    })
-    .then(()=> {
-      io.emit('set_rooms', rooms);
-    })
+      const id = r.data['pk'];
+      getRoom(id).then((res)=>   {
+        rooms.push(res.data);
+        io.emit('set_rooms', rooms);
+      });
+    });
   });
 
   socket.on('close_room', (id) => {
       closeRoom(id)
       .then(res=> {
-           io.emit('set_rooms', rooms);
+        const id = res?.data['pk'];
+        const [room, index] = getKeyByValue(rooms, 'pk', id);
+        rooms.splice(index, 1);
+        io.emit('set_rooms', rooms);
       })
       .catch(err => {
         writeLogger(`${INFO}.txt`, {type: ERROR, message: 'close_room', err})
@@ -213,10 +228,13 @@ async function listen(socket) {
               socket.broadcast.emit('set_rooms', rooms);
             });
             getKeyByValue(user_in_rooms, )
-            user_index = user_in_rooms[room].findIndex((x) => x === userInfo["ID"])
-            if(user_index > -1) {
-              remove_user_from_room_by_index(room, user_index);
-            }
+            try {
+              user_index = user_in_rooms[room].findIndex((x) => x === userInfo["ID"])
+              if(user_index > -1) {
+                remove_user_from_room_by_index(room, user_index);
+              }
+              
+            } catch (error) {}
           
           });
 
