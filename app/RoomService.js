@@ -59,13 +59,17 @@ async function listen(socket) {
     data['name'] = room
     createRoom(data)
     .then(r => 
-    {
-      const id = r.data['pk'];
-      getRoom(id).then((res)=>   {
-        rooms.push(res.data);
-        io.emit('set_rooms', rooms);
+      {
+        try {
+          const id = r.data['pk'];
+          getRoom(id).then((res)=>   {
+            rooms.push(res.data);
+            io.emit('set_rooms', rooms);
+          });
+        } catch (err) {
+          writeLogger("server_logs.txt", {data, err: err.toString(),  message: 'create room'}, true);
+        }
       });
-    });
   });
 
   socket.on('close_room', (id) => {
